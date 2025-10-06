@@ -1,0 +1,618 @@
+[
+  {
+    "table_name": "attendance",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('attendance_id_seq'::regclass)"
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "date",
+    "data_type": "date",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "check_in",
+    "data_type": "time without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "check_out",
+    "data_type": "time without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "status",
+    "data_type": "character varying",
+    "character_maximum_length": 10,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "employee_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "late_minutes",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0"
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "overtime_minutes",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0"
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "actual_hours",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "deduction_amount",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0"
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "check_in_lat",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "check_in_lng",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "check_out_lat",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "attendance",
+    "column_name": "check_out_lng",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "deductions",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('deductions_id_seq'::regclass)"
+  },
+  {
+    "table_name": "deductions",
+    "column_name": "employee_id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "deductions",
+    "column_name": "amount",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "deductions",
+    "column_name": "reason",
+    "data_type": "character varying",
+    "character_maximum_length": 255,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "deductions",
+    "column_name": "date",
+    "data_type": "date",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "CURRENT_DATE"
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('leaves_id_seq'::regclass)"
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "start_date",
+    "data_type": "date",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "end_date",
+    "data_type": "date",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "type",
+    "data_type": "character varying",
+    "character_maximum_length": 10,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "status",
+    "data_type": "character varying",
+    "character_maximum_length": 10,
+    "is_nullable": "YES",
+    "column_default": "'pending'::character varying"
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "employee_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "admin_notes",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "leaves",
+    "column_name": "reason",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('salaries_id_seq'::regclass)"
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "month",
+    "data_type": "character varying",
+    "character_maximum_length": 7,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "base_salary",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "deductions",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0.00"
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "bonuses",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0.00"
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "net_salary",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salaries",
+    "column_name": "employee_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('salary_calculations_id_seq'::regclass)"
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "user_id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "month",
+    "data_type": "character varying",
+    "character_maximum_length": 7,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "base_salary",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "shift_hours",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "total_work_days",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "actual_work_days",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "absent_days",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "late_deductions",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "leave_deductions",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "overtime_bonus",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "final_salary",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "created_at",
+    "data_type": "timestamp without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "now()"
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "payment_date",
+    "data_type": "timestamp without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "notes",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "overtime_hours",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0"
+  },
+  {
+    "table_name": "salary_calculations",
+    "column_name": "unpaid_leave_days",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "0"
+  },
+  {
+    "table_name": "users",
+    "column_name": "id",
+    "data_type": "uuid",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "uuid_generate_v4()"
+  },
+  {
+    "table_name": "users",
+    "column_name": "email",
+    "data_type": "character varying",
+    "character_maximum_length": 255,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "full_name",
+    "data_type": "character varying",
+    "character_maximum_length": 255,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "role",
+    "data_type": "USER-DEFINED",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "'employee'::user_role"
+  },
+  {
+    "table_name": "users",
+    "column_name": "phone",
+    "data_type": "character varying",
+    "character_maximum_length": 20,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "national_id",
+    "data_type": "character varying",
+    "character_maximum_length": 20,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "basic_salary",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "hire_date",
+    "data_type": "date",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "CURRENT_DATE"
+  },
+  {
+    "table_name": "users",
+    "column_name": "status",
+    "data_type": "character varying",
+    "character_maximum_length": 20,
+    "is_nullable": "YES",
+    "column_default": "'active'::character varying"
+  },
+  {
+    "table_name": "users",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "CURRENT_TIMESTAMP"
+  },
+  {
+    "table_name": "users",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "CURRENT_TIMESTAMP"
+  },
+  {
+    "table_name": "users",
+    "column_name": "department",
+    "data_type": "character varying",
+    "character_maximum_length": 100,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "position",
+    "data_type": "character varying",
+    "character_maximum_length": 100,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "shift_type",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": "8"
+  },
+  {
+    "table_name": "users",
+    "column_name": "hourly_rate",
+    "data_type": "numeric",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "users",
+    "column_name": "shift_type_id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "work_shifts",
+    "column_name": "id",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "nextval('work_shifts_id_seq'::regclass)"
+  },
+  {
+    "table_name": "work_shifts",
+    "column_name": "name",
+    "data_type": "character varying",
+    "character_maximum_length": 50,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "work_shifts",
+    "column_name": "hours_per_day",
+    "data_type": "integer",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": null
+  },
+  {
+    "table_name": "work_shifts",
+    "column_name": "description",
+    "data_type": "text",
+    "character_maximum_length": null,
+    "is_nullable": "YES",
+    "column_default": null
+  },
+  {
+    "table_name": "work_shifts",
+    "column_name": "start_time",
+    "data_type": "time without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "'09:00:00'::time without time zone"
+  },
+  {
+    "table_name": "work_shifts",
+    "column_name": "end_time",
+    "data_type": "time without time zone",
+    "character_maximum_length": null,
+    "is_nullable": "NO",
+    "column_default": "'17:00:00'::time without time zone"
+  }
+]

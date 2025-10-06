@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة شؤون الموظفين</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+      direction: rtl; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+
+    .container { 
+      width: 100%; 
+      max-width: 420px; 
+      padding: 35px; 
+      background: #fff; 
+      border-radius: 20px; 
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    h1 { 
+      text-align: center; 
+      margin-bottom: 30px;
+      color: #2c3e50;
+      font-size: 26px;
+      font-weight: 600;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #eee;
+      gap: 5px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      cursor: pointer;
+      color: #666;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      border-radius: 8px 8px 0 0;
+      background: transparent;
+      border: none;
+      font-size: 15px;
+    }
+
+    .tab:hover {
+      background: #f8f9fa;
+    }
+
+    .tab.active {
+      color: #667eea;
+      border-bottom: 3px solid #667eea;
+      margin-bottom: -2px;
+      background: #f8f9fa;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input { 
+      width: 100%; 
+      padding: 14px 14px;
+      border: 2px solid #e0e0e0; 
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    .password-input {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-input input {
+      padding-left: 45px;
+    }
+
+    .toggle-password {
+      position: absolute;
+      left: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      color: #666;
+      transition: color 0.3s;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+    }
+
+    .toggle-password:hover {
+      color: #667eea;
+      background: #f8f9fa;
+    }
+
+    .eye-icon {
+      font-size: 20px;
+      user-select: none;
+    }
+
+    button.submit-btn { 
+      width: 100%; 
+      padding: 14px; 
+      margin: 8px 0; 
+      border: none; 
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    button.submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button.submit-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button.submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error { 
+      color: #dc3545; 
+      text-align: center; 
+      margin-top: 15px;
+      padding: 12px;
+      background: #fff5f5;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      border: 1px solid #ffebee;
+      line-height: 1.6;
+    }
+
+    .error.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    .success {
+      color: #28a745;
+      text-align: center;
+      margin-top: 15px;
+      padding: 12px;
+      background: #f0fff4;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+      border: 1px solid #e8f5e9;
+      line-height: 1.6;
+    }
+
+    .success.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .register-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .register-link {
+      color: #667eea;
+      cursor: pointer;
+      text-decoration: none;
+      margin-right: 5px;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .register-link:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
+
+    .resend-btn {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .resend-btn:hover {
+      background: #218838;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .form-container {
+      display: none;
+    }
+
+    .form-container.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>نظام إدارة شؤون الموظفين</h1>
+  
+  <div class="tabs">
+    <button class="tab active" id="employeeTab" type="button">موظف</button>
+    <button class="tab" id="adminTab" type="button">مدير</button>
+  </div>
+
+  <!-- نموذج تسجيل دخول الموظف -->
+  <div id="employeeLoginForm" class="form-container active">
+    <form id="empLoginForm">
+      <div class="form-group">
+        <label for="empEmail">البريد الإلكتروني</label>
+        <input type="email" id="empEmail" placeholder="example@company.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="empPassword">كلمة المرور</label>
+        <div class="password-input">
+          <input type="password" id="empPassword" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="toggle-password" data-target="empPassword">
+            <span class="eye-icon">👁️</span>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">تسجيل الدخول</button>
+      <div id="empErrorBox" class="error"></div>
+    </form>
+  </div>
+
+  <!-- نموذج تسجيل دخول الأدمن -->
+  <div id="adminLoginForm" class="form-container">
+    <form id="admLoginForm">
+      <div class="form-group">
+        <label for="adminEmail">البريد الإلكتروني</label>
+        <input type="email" id="adminEmail" placeholder="admin@company.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="adminPassword">كلمة المرور</label>
+        <div class="password-input">
+          <input type="password" id="adminPassword" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="toggle-password" data-target="adminPassword">
+            <span class="eye-icon">👁️</span>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">تسجيل الدخول</button>
+      <div class="register-section">
+        <span>ليس لديك حساب؟</span>
+        <a href="#" class="register-link" id="showRegisterLink">تسجيل جديد</a>
+      </div>
+      <div id="adminErrorBox" class="error"></div>
+    </form>
+  </div>
+
+  <!-- نموذج تسجيل أدمن جديد -->
+  <div id="adminRegisterForm" class="form-container">
+    <form id="admRegForm">
+      <div class="form-group">
+        <label for="regFullName">الاسم الكامل</label>
+        <input type="text" id="regFullName" placeholder="أحمد محمد" required autocomplete="name" minlength="3">
+      </div>
+      <div class="form-group">
+        <label for="regEmail">البريد الإلكتروني</label>
+        <input type="email" id="regEmail" placeholder="admin@company.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="regPassword">كلمة المرور</label>
+        <div class="password-input">
+          <input type="password" id="regPassword" placeholder="6 أحرف على الأقل" required minlength="6" autocomplete="new-password">
+          <button type="button" class="toggle-password" data-target="regPassword">
+            <span class="eye-icon">👁️</span>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="submit-btn">تسجيل</button>
+      <div class="register-section">
+        <span>لديك حساب بالفعل؟</span>
+        <a href="#" class="register-link" id="showLoginLink">تسجيل دخول</a>
+      </div>
+      <div id="regErrorBox" class="error"></div>
+      <div id="regSuccessBox" class="success"></div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+  const supabaseUrl = "https://nxhnivykhlnauewpmuqv.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54aG5pdnlraGxuYXVld3BtdXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4Mjk2NTYsImV4cCI6MjA3NDQwNTY1Nn0.-3ps3Mp7aYuA2m54sW3gNN3CpZ2acRtKGj8jI5eHTOU";
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  // عناصر الصفحة
+  const employeeTab = document.getElementById('employeeTab');
+  const adminTab = document.getElementById('adminTab');
+  const employeeFormContainer = document.getElementById('employeeLoginForm');
+  const adminFormContainer = document.getElementById('adminLoginForm');
+  const adminRegFormContainer = document.getElementById('adminRegisterForm');
+
+  // دالة لإخفاء جميع رسائل الأخطاء
+  function clearMessages() {
+    document.querySelectorAll('.error, .success').forEach(el => {
+      el.classList.remove('show');
+      el.innerHTML = '';
+    });
+  }
+
+  // التبديل بين علامات التبويب
+  function switchTab(tab) {
+    clearMessages();
+    
+    // إزالة active من جميع التبويبات والنماذج
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+    
+    if (tab === 'employee') {
+      employeeTab.classList.add('active');
+      employeeFormContainer.classList.add('active');
+    } else {
+      adminTab.classList.add('active');
+      adminFormContainer.classList.add('active');
+    }
+  }
+
+  // معالجة أحداث التبويبات
+  employeeTab.addEventListener('click', () => switchTab('employee'));
+  adminTab.addEventListener('click', () => switchTab('admin'));
+
+  // التبديل بين تسجيل دخول وتسجيل جديد للأدمن
+  function showAdminRegister(e) {
+    e.preventDefault();
+    clearMessages();
+    adminFormContainer.classList.remove('active');
+    adminRegFormContainer.classList.add('active');
+  }
+
+  function showAdminLogin(e) {
+    e.preventDefault();
+    clearMessages();
+    adminFormContainer.classList.add('active');
+    adminRegFormContainer.classList.remove('active');
+  }
+
+  document.getElementById('showRegisterLink').addEventListener('click', showAdminRegister);
+  document.getElementById('showLoginLink').addEventListener('click', showAdminLogin);
+
+  // إظهار/إخفاء كلمة المرور
+  document.querySelectorAll('.toggle-password').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.querySelector('.eye-icon').textContent = '👁️‍🗨️';
+      } else {
+        input.type = 'password';
+        btn.querySelector('.eye-icon').textContent = '👁️';
+      }
+    });
+  });
+
+  // دالة لإعادة إرسال رابط تأكيد البريد
+  async function resendConfirmation(email, errorBoxId) {
+    const errorBox = document.getElementById(errorBoxId);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email
+      });
+      if (error) throw error;
+      errorBox.className = 'success show';
+      errorBox.innerText = '✓ تم إرسال رابط التأكيد. يرجى التحقق من بريدك الإلكتروني.';
+    } catch (err) {
+      console.error(err);
+      errorBox.className = 'error show';
+      errorBox.innerText = '❌ ' + (err.message || 'حدث خطأ في إرسال رابط التأكيد');
+    }
+  }
+
+  // تسجيل دخول الموظف
+  document.getElementById('empLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('empErrorBox');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    clearMessages();
+
+    const email = document.getElementById('empEmail').value.trim();
+    const password = document.getElementById('empPassword').value.trim();
+
+    if (!email || !password) {
+      errorBox.className = 'error show';
+      errorBox.innerText = '❌ يرجى إدخال البريد الإلكتروني وكلمة المرور';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> جاري تسجيل الدخول...';
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
+          errorBox.className = 'error show';
+          errorBox.innerHTML = `
+            ❌ لم يتم تأكيد البريد الإلكتروني بعد.
+            <br><br>
+            <button class="resend-btn" type="button" id="empResendBtn">
+              إعادة إرسال رابط التأكيد
+            </button>
+          `;
+          document.getElementById('empResendBtn').addEventListener('click', () => {
+            resendConfirmation(email, 'empErrorBox');
+          });
+          return;
+        }
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        }
+        throw error;
+      }
+
+      if (!data.user) {
+        throw new Error('فشل تسجيل الدخول');
+      }
+
+      // التحقق من دور المستخدم
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role, status')
+        .eq('id', data.user.id)
+        .single();
+
+      if (userError) {
+        console.error('User role check error:', userError);
+        throw new Error('خطأ في التحقق من صلاحيات المستخدم');
+      }
+
+      if (!userData) {
+        throw new Error('لم يتم العثور على بيانات المستخدم');
+      }
+
+      if (userData.role !== 'employee') {
+        await supabase.auth.signOut();
+        throw new Error('هذا الحساب ليس حساب موظف');
+      }
+
+      if (userData.status !== 'active') {
+        await supabase.auth.signOut();
+        throw new Error('حسابك غير نشط. يرجى التواصل مع الإدارة');
+      }
+
+      window.location.href = "/employee-dashboard.html";
+    } catch (err) {
+      console.error('Login error:', err);
+      errorBox.className = 'error show';
+      errorBox.innerText = "❌ " + (err.message || 'حدث خطأ في تسجيل الدخول');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'تسجيل الدخول';
+    }
+  });
+
+  // تسجيل دخول الأدمن
+  document.getElementById('admLoginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('adminErrorBox');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    clearMessages();
+
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+
+    if (!email || !password) {
+      errorBox.className = 'error show';
+      errorBox.innerText = '❌ يرجى إدخال البريد الإلكتروني وكلمة المرور';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> جاري تسجيل الدخول...';
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      
+      if (error) {
+        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
+          errorBox.className = 'error show';
+          errorBox.innerHTML = `
+            ❌ لم يتم تأكيد البريد الإلكتروني بعد.
+            <br><br>
+            <button class="resend-btn" type="button" id="adminResendBtn">
+              إعادة إرسال رابط التأكيد
+            </button>
+          `;
+          document.getElementById('adminResendBtn').addEventListener('click', () => {
+            resendConfirmation(email, 'adminErrorBox');
+          });
+          return;
+        }
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+        }
+        throw error;
+      }
+
+      if (!data.user) {
+        throw new Error('فشل تسجيل الدخول');
+      }
+
+      // التحقق من دور المستخدم
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('role, status')
+        .eq('id', data.user.id)
+        .single();
+
+      if (userError) {
+        console.error('User role check error:', userError);
+        throw new Error('خطأ في التحقق من صلاحيات المستخدم');
+      }
+
+      if (!userData) {
+        throw new Error('لم يتم العثور على بيانات المستخدم');
+      }
+
+      if (userData.role !== 'admin') {
+        await supabase.auth.signOut();
+        throw new Error('هذا الحساب ليس حساب مدير');
+      }
+
+      if (userData.status !== 'active') {
+        await supabase.auth.signOut();
+        throw new Error('حسابك غير نشط');
+      }
+
+      window.location.href = "/admin-dashboard.html";
+    } catch (err) {
+      console.error('Login error:', err);
+      errorBox.className = 'error show';
+      errorBox.innerText = "❌ " + (err.message || 'حدث خطأ في تسجيل الدخول');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'تسجيل الدخول';
+    }
+  });
+
+  // تسجيل أدمن جديد
+  document.getElementById('admRegForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorBox = document.getElementById('regErrorBox');
+    const successBox = document.getElementById('regSuccessBox');
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    clearMessages();
+
+    const full_name = document.getElementById('regFullName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
+
+    // التحقق من صحة البيانات
+    if (full_name.length < 3) {
+      errorBox.className = 'error show';
+      errorBox.innerText = '❌ الاسم يجب أن يكون 3 أحرف على الأقل';
+      return;
+    }
+
+    if (password.length < 6) {
+      errorBox.className = 'error show';
+      errorBox.innerText = '❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="loading"></span> جاري التسجيل...';
+
+    try {
+      // تسجيل المستخدم في Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { 
+          data: { 
+            full_name,
+            role: 'admin'
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (!data.user) {
+        throw new Error('فشل إنشاء الحساب');
+      }
+
+      const userId = data.user.id;
+
+      // إضافة المستخدم في جدول users
+      const { error: insertError } = await supabase
+        .from('users')
+        .insert({ 
+          id: userId, 
+          full_name, 
+          email, 
+          role: 'admin', 
+          status: 'active' 
+        });
+
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        // محاولة Update إذا كان السجل موجوداً
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ 
+            full_name, 
+            role: 'admin', 
+            status: 'active',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId);
+        
+        if (updateError) {
+          console.error('Update error:', updateError);
+        }
+      }
+
+      // إظهار رسالة نجاح
+      successBox.className = 'success show';
+      successBox.innerHTML = `
+        ✓ تم التسجيل بنجاح! 
+        <br><br>
+        تم إرسال رابط تأكيد إلى بريدك الإلكتروني. 
+        <br>
+        يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.
+      `;
+      
+      // تفريغ الحقول
+      document.getElementById('regFullName').value = '';
+      document.getElementById('regEmail').value = '';
+      document.getElementById('regPassword').value = '';
+      
+      setTimeout(() => {
+        showAdminLogin({ preventDefault: () => {} });
+      }, 3000);
+
+    } catch (err) {
+      console.error('Registration error:', err);
+      errorBox.className = 'error show';
+      let errorMessage = 'حدث خطأ في التسجيل';
+      
+      if (err.message.includes('already registered') || err.message.includes('already been registered')) {
+        errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
+      } else if (err.message.includes('invalid email')) {
+        errorMessage = 'البريد الإلكتروني غير صحيح';
+      } else if (err.message.includes('Password')) {
+        errorMessage = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      errorBox.innerText = "❌ " + errorMessage;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'تسجيل';
+    }
+  });
+
+  // التحقق من وجود جلسة نشطة عند تحميل الصفحة
+  (async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('Session check error:', error);
+        return;
+      }
+      
+      if (session) {
+        // التحقق من دور المستخدم وتوجيهه للصفحة المناسبة
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (userError) {
+          console.error('User data error:', userError);
+          return;
+        }
+
+        if (userData?.role === 'admin') {
+          window.location.href = "/admin-dashboard.html";
+        } else if (userData?.role === 'employee') {
+          window.location.href = "/employee-dashboard.html";
+        }
+      }
+    } catch (err) {
+      console.error('Initialization error:', err);
+    }
+  })();
+</script>
+
+</body>
+</html>
