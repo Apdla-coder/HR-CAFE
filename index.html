@@ -632,7 +632,7 @@
         throw new Error('حسابك غير نشط');
       }
 
-      window.location.href = "/admin-dashboard.html";
+      window.location.href = "admin-dashboard.html";
     } catch (err) {
       console.error('Login error:', err);
       errorBox.className = 'error show';
@@ -786,9 +786,9 @@
         }
 
         if (userData?.role === 'admin') {
-          window.location.href = "/admin-dashboard.html";
+window.location.href = "admin-dashboard.html";
         } else if (userData?.role === 'employee') {
-          window.location.href = "/employee-dashboard.html";
+window.location.href = "employee-dashboard.html";
         }
       }
     } catch (err) {
