@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة Super Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+    
+    body { 
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 260px;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    .sidebar-header {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      margin-bottom: 20px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.3rem;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-header p {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 5px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 15px;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(255,255,255,0.15);
+      transform: translateX(-5px);
+    }
+
+    .nav-link i {
+      width: 20px;
+    }
+
+    .main-content {
+      margin-right: 260px;
+      padding: 30px;
+    }
+
+    .top-bar {
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar h1 {
+      color: #667eea;
+      font-size: 1.8rem;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+    }
+
+    .stat-card:nth-child(1) .stat-icon {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+    }
+
+    .stat-card:nth-child(3) .stat-icon {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    .stat-card:nth-child(4) .stat-icon {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .content-section {
+      display: none;
+    }
+
+    .content-section.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .card-header h3 {
+      color: #333;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.875rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: right;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .org-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .plan-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .plan-basic {
+      background: #e7f5ff;
+      color: #0c5460;
+    }
+
+    .plan-professional {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .plan-enterprise {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .modal-header h3 {
+      color: #667eea;
+      font-size: 1.5rem;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .close-btn:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .loading i {
+      font-size: 2rem;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #28a745;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 3000;
+      transition: transform 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .notification.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .notification.error {
+      background: #dc3545;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    @media (max-width: 968px) {
+      .sidebar {
+        transform: translateX(100%);
+        transition: transform 0.3s;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-right: 0;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Notification -->
+  <div class="notification" id="notification">
+    <i class="fas fa-check-circle"></i>
+    <span id="notificationText">تم بنجاح</span>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2><i class="fas fa-crown"></i> Super Admin</h2>
+      <p>لوحة التحكم الرئيسية</p>
+    </div>
+
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a class="nav-link active" data-section="dashboard">
+          <i class="fas fa-chart-line"></i>
+          <span>لوحة المعلومات</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-section="organizations">
+          <i class="fas fa-building"></i>
+          <span>المؤسسات</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-section="subscriptions">
+          <i class="fas fa-credit-card"></i>
+          <span>الاشتراكات</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-section="settings">
+          <i class="fas fa-cog"></i>
+          <span>الإعدادات</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <h1>مرحباً بك</h1>
+      <div class="user-info">
+        <div>
+          <div style="font-weight: 600;" id="adminName">Super Admin</div>
+          <div style="font-size: 0.875rem; color: #666;">مدير النظام</div>
+        </div>
+        <div class="avatar">S</div>
+        <button class="logout-btn" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div class="content-section active" id="dashboardSection">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <div class="stat-label">إجمالي المؤسسات</div>
+          <div class="stat-value" id="totalOrgs">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stat-label">المؤسسات النشطة</div>
+          <div class="stat-value" id="activeOrgs">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-label">إجمالي المستخدمين</div>
+          <div class="stat-value" id="totalUsers">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-label">الإيرادات الشهرية</div>
+          <div class="stat-value" id="monthlyRevenue">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-chart-bar"></i> نظرة عامة</h3>
+        </div>
+        <div id="dashboardCharts">
+          <p style="text-align: center; color: #999; padding: 40px;">
+            الرسوم البيانية ستظهر هنا
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Organizations Section -->
+    <div class="content-section" id="organizationsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-building"></i> إدارة المؤسسات</h3>
+          <button class="btn btn-primary" onclick="openNewOrgPage()">
+            <i class="fas fa-plus"></i> إضافة مؤسسة
+          </button>
+        </div>
+
+        <div class="search-box">
+          <input type="text" id="orgSearch" placeholder="ابحث عن مؤسسة...">
+          <button class="btn btn-primary" onclick="loadOrganizations()">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+
+        <div id="organizationsTable">
+          <div class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>جاري التحميل...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Subscriptions Section -->
+    <div class="content-section" id="subscriptionsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-credit-card"></i> إدارة الاشتراكات والباقات</h3>
+        </div>
+        <div id="subscriptionsContent">
+          <p style="text-align: center; color: #999; padding: 40px;">
+            جاري التطوير...
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div class="content-section" id="settingsSection">
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fas fa-cog"></i> إعدادات النظام</h3>
+        </div>
+        <div id="settingsContent">
+          <p style="text-align: center; color: #999; padding: 40px;">
+            جاري التطوير...
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Organization Details Modal -->
+  <div class="modal" id="orgModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">تفاصيل المؤسسة</h3>
+        <button class="close-btn" onclick="closeOrgModal()">&times;</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+    const supabaseUrl = "https://nxhnivykhlnauewpmuqv.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54aG5pdnlraGxuYXVld3BtdXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4Mjk2NTYsImV4cCI6MjA3NDQwNTY1Nn0.-3ps3Mp7aYuA2m54sW3gNN3CpZ2acRtKGj8jI5eHTOU";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    let currentUser = null;
+
+    // Check session and permissions
+    async function checkSession() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        window.location.href = 'index.html';
+        return false;
+      }
+
+      currentUser = session.user;
+
+      // Check if user is super admin (you can add a is_super_admin field)
+      const { data: userData } = await supabase
+        .from('users')
+        .select('role, full_name')
+        .eq('id', session.user.id)
+        .single();
+
+      if (!userData || userData.role !== 'admin') {
+        window.location.href = 'index.html';
+        return false;
+      }
+
+      document.getElementById('adminName').textContent = userData.full_name || 'Admin';
+      return true;
+    }
+
+    // Show notification
+    function showNotification(text, type = 'success') {
+      const notification = document.getElementById('notification');
+      const notificationText = document.getElementById('notificationText');
+      notification.className = `notification ${type}`;
+      notificationText.textContent = text;
+      notification.classList.add('show');
+      setTimeout(() => notification.classList.remove('show'), 5000);
+    }
+
+    // Load dashboard stats
+    async function loadDashboardStats() {
+      try {
+        const [orgsResult, usersResult] = await Promise.all([
+          supabase.from('organizations').select('id, status, plan'),
+          supabase.from('users').select('id')
+        ]);
+
+        const organizations = orgsResult.data || [];
+        const users = usersResult.data || [];
+
+        document.getElementById('totalOrgs').textContent = organizations.length;
+        document.getElementById('activeOrgs').textContent = 
+          organizations.filter(o => o.status === 'active').length;
+        document.getElementById('totalUsers').textContent = users.length;
+
+        // Calculate revenue
+        const planPrices = { basic: 0, professional: 499, enterprise: 1499 };
+        const revenue = organizations
+          .filter(o => o.status === 'active')
+          .reduce((sum, o) => sum + (planPrices[o.plan] || 0), 0);
+        
+        document.getElementById('monthlyRevenue').textContent = revenue.toLocaleString('ar-EG') + ' ج.م';
+
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        showNotification('حدث خطأ في تحميل الإحصائيات', 'error');
+      }
+    }
+
+    // Load organizations
+    window.loadOrganizations = async function() {
+      const tableDiv = document.getElementById('organizationsTable');
+      tableDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>جاري التحميل...</p></div>';
+
+      try {
+        const searchTerm = document.getElementById('orgSearch').value.toLowerCase();
+        
+        let query = supabase
+          .from('organizations')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        const { data: organizations, error } = await query;
+
+        if (error) throw error;
+
+        let filteredOrgs = organizations || [];
+        if (searchTerm) {
+          filteredOrgs = filteredOrgs.filter(org => 
+            org.name.toLowerCase().includes(searchTerm) ||
+            org.code.toLowerCase().includes(searchTerm) ||
+            org.email?.toLowerCase().includes(searchTerm)
+          );
+        }
+
+        if (filteredOrgs.length === 0) {
+          tableDiv.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-building"></i>
+              <p>لا توجد مؤسسات</p>
+            </div>
+          `;
+          return;
+        }
+
+        const planNames = {
+          basic: 'أساسية',
+          professional: 'احترافية',
+          enterprise: 'شركات'
+        };
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>الشعار</th>
+                <th>اسم المؤسسة</th>
+                <th>الكود</th>
+                <th>البريد</th>
+                <th>الباقة</th>
+                <th>الحالة</th>
+                <th>تاريخ التسجيل</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        filteredOrgs.forEach(org => {
+          const statusClass = org.status === 'active' ? 'status-active' : 'status-inactive';
+          const statusText = org.status === 'active' ? 'نشط' : 'غير نشط';
+          const planClass = `plan-${org.plan}`;
+          const createdDate = new Date(org.created_at).toLocaleDateString('ar-EG');
+
+          html += `
+            <tr>
+              <td>
+                ${org.logo_url ? 
+                  `<img src="${org.logo_url}" class="org-logo" alt="${org.name}">` :
+                  `<div class="org-logo" style="background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">${org.name.charAt(0)}</div>`
+                }
+              </td>
+              <td><strong>${org.name}</strong></td>
+              <td><code>${org.code}</code></td>
+              <td>${org.email || '-'}</td>
+              <td><span class="plan-badge ${planClass}">${planNames[org.plan] || org.plan}</span></td>
+              <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+              <td>${createdDate}</td>
+              <td>
+                <button class="btn btn-primary btn-sm" onclick="viewOrganization('${org.id}')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-warning btn-sm" onclick="editOrganization('${org.id}')">
+                  <i class="fas fa-edit"></i>
+                </button>
+                ${org.status === 'active' ? 
+                  `<button class="btn btn-danger btn-sm" onclick="toggleOrgStatus('${org.id}', 'inactive')">
+                    <i class="fas fa-ban"></i>
+                  </button>` :
+                  `<button class="btn btn-success btn-sm" onclick="toggleOrgStatus('${org.id}', 'active')">
+                    <i class="fas fa-check"></i>
+                  </button>`
+                }
+              </td>
+            </tr>
+          `;
+        });
+
+        html += '</tbody></table>';
+        tableDiv.innerHTML = html;
+
+      } catch (error) {
+        console.error('Error loading organizations:', error);
+        tableDiv.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>حدث خطأ في تحميل البيانات</p>
+          </div>
+        `;
+      }
+    };
+
+    // View organization details
+    window.viewOrganization = async function(orgId) {
+      try {
+        const { data: org, error } = await supabase
+          .from('organizations')
+          .select(`
+            *,
+            branches(count),
+            users(count)
+          `)
+          .eq('id', orgId)
+          .single();
+
+        if (error) throw error;
+
+        const branchCount = org.branches?.[0]?.count || 0;
+        const userCount = org.users?.[0]?.count || 0;
+
+        const planNames = {
+          basic: 'الباقة الأساسية',
+          professional: 'الباقة الاحترافية',
+          enterprise: 'باقة الشركات'
+        };
+
+        document.getElementById('modalTitle').innerHTML = 
+          `<i class="fas fa-building"></i> ${org.name}`;
+
+        document.getElementById('modalBody').innerHTML = `
+          <div style="display: grid; gap: 15px;">
+            ${org.logo_url ? 
+              `<div style="text-align: center; margin-bottom: 20px;">
+                <img src="${org.logo_url}" style="max-width: 200px; border-radius: 12px;">
+              </div>` : ''
+            }
+            
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+              <div>
+                <strong>الكود:</strong> ${org.code}
+              </div>
+              <div>
+                <strong>الباقة:</strong> ${planNames[org.plan] || org.plan}
+              </div>
+              <div>
+                <strong>البريد:</strong> ${org.email || '-'}
+              </div>
+              <div>
+                <strong>الهاتف:</strong> ${org.phone || '-'}
+              </div>
+              <div>
+                <strong>الموقع:</strong> ${org.website ? `<a href="${org.website}" target="_blank">${org.website}</a>` : '-'}
+              </div>
+              <div>
+                <strong>الدولة:</strong> ${org.country || '-'}
+              </div>
+              <div>
+                <strong>عدد الفروع:</strong> ${branchCount}
+              </div>
+              <div>
+                <strong>عدد المستخدمين:</strong> ${userCount}
+              </div>
+              <div>
+                <strong>ساعات العمل:</strong> ${org.work_hours_per_day || 8} ساعة/يوم
+              </div>
+              <div>
+                <strong>أيام العمل:</strong> ${org.work_days_per_week || 5} أيام/أسبوع
+              </div>
+              <div>
+                <strong>العملة:</strong> ${org.currency || 'EGP'}
+              </div>
+              <div>
+                <strong>المنطقة الزمنية:</strong> ${org.timezone || '-'}
+              </div>
+            </div>
+
+            ${org.description ? 
+              `<div style="margin-top: 15px;">
+                <strong>الوصف:</strong>
+                <p style="color: #666; margin-top: 8px;">${org.description}</p>
+              </div>` : ''
+            }
+
+            ${org.address ? 
+              `<div style="margin-top: 15px;">
+                <strong>العنوان:</strong>
+                <p style="color: #666; margin-top: 8px;">${org.address}</p>
+              </div>` : ''
+            }
+
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #f0f0f0;">
+              <strong>تاريخ التسجيل:</strong> ${new Date(org.created_at).toLocaleString('ar-EG')}
+            </div>
+          </div>
+        `;
+
+        document.getElementById('orgModal').classList.add('show');
+
+      } catch (error) {
+        console.error('Error viewing organization:', error);
+        showNotification('حدث خطأ في تحميل البيانات', 'error');
+      }
+    };
+
+    // Edit organization
+    window.editOrganization = async function(orgId) {
+      try {
+        const { data: org, error } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', orgId)
+          .single();
+
+        if (error) throw error;
+
+        document.getElementById('modalTitle').innerHTML = 
+          `<i class="fas fa-edit"></i> تعديل بيانات المؤسسة`;
+
+        const planOptions = ['basic', 'professional', 'enterprise'];
+        const planNames = {
+          basic: 'الباقة الأساسية',
+          professional: 'الباقة الاحترافية',
+          enterprise: 'باقة الشركات'
+        };
+
+        document.getElementById('modalBody').innerHTML = `
+          <form id="editOrgForm">
+            <div class="form-group">
+              <label>اسم المؤسسة</label>
+              <input type="text" id="editName" value="${org.name}" required>
+            </div>
+
+            <div class="form-group">
+              <label>كود المؤسسة</label>
+              <input type="text" id="editCode" value="${org.code}" readonly style="background: #f0f0f0;">
+            </div>
+
+            <div class="form-group">
+              <label>البريد الإلكتروني</label>
+              <input type="email" id="editEmail" value="${org.email || ''}">
+            </div>
+
+            <div class="form-group">
+              <label>الهاتف</label>
+              <input type="tel" id="editPhone" value="${org.phone || ''}">
+            </div>
+
+            <div class="form-group">
+              <label>الباقة</label>
+              <select id="editPlan">
+                ${planOptions.map(plan => 
+                  `<option value="${plan}" ${org.plan === plan ? 'selected' : ''}>${planNames[plan]}</option>`
+                ).join('')}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>الحالة</label>
+              <select id="editStatus">
+                <option value="active" ${org.status === 'active' ? 'selected' : ''}>نشط</option>
+                <option value="inactive" ${org.status === 'inactive' ? 'selected' : ''}>غير نشط</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>ساعات العمل اليومية</label>
+              <input type="number" id="editWorkHours" value="${org.work_hours_per_day || 8}" min="1" max="24">
+            </div>
+
+            <div class="form-group">
+              <label>أيام العمل الأسبوعية</label>
+              <input type="number" id="editWorkDays" value="${org.work_days_per_week || 5}" min="1" max="7">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+              <button type="submit" class="btn btn-primary" style="flex: 1;">
+                <i class="fas fa-save"></i> حفظ التعديلات
+              </button>
+              <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="closeOrgModal()">
+                <i class="fas fa-times"></i> إلغاء
+              </button>
+            </div>
+          </form>
+        `;
+
+        document.getElementById('editOrgForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const updateData = {
+            name: document.getElementById('editName').value,
+            email: document.getElementById('editEmail').value,
+            phone: document.getElementById('editPhone').value,
+            plan: document.getElementById('editPlan').value,
+            status: document.getElementById('editStatus').value,
+            work_hours_per_day: parseInt(document.getElementById('editWorkHours').value),
+            work_days_per_week: parseInt(document.getElementById('editWorkDays').value),
+            updated_at: new Date().toISOString()
+          };
+
+          try {
+            const { error } = await supabase
+              .from('organizations')
+              .update(updateData)
+              .eq('id', orgId);
+
+            if (error) throw error;
+
+            showNotification('تم تحديث بيانات المؤسسة بنجاح', 'success');
+            closeOrgModal();
+            loadOrganizations();
+            loadDashboardStats();
+
+          } catch (error) {
+            console.error('Error updating organization:', error);
+            showNotification('حدث خطأ في تحديث البيانات', 'error');
+          }
+        });
+
+        document.getElementById('orgModal').classList.add('show');
+
+      } catch (error) {
+        console.error('Error loading organization:', error);
+        showNotification('حدث خطأ في تحميل البيانات', 'error');
+      }
+    };
+
+    // Toggle organization status
+    window.toggleOrgStatus = async function(orgId, newStatus) {
+      const statusText = newStatus === 'active' ? 'تفعيل' : 'تعطيل';
+      
+      if (!confirm(`هل أنت متأكد من ${statusText} هذه المؤسسة؟`)) return;
+
+      try {
+        const { error } = await supabase
+          .from('organizations')
+          .update({ 
+            status: newStatus,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', orgId);
+
+        if (error) throw error;
+
+        showNotification(`تم ${statusText} المؤسسة بنجاح`, 'success');
+        loadOrganizations();
+        loadDashboardStats();
+
+      } catch (error) {
+        console.error('Error toggling status:', error);
+        showNotification('حدث خطأ في تحديث الحالة', 'error');
+      }
+    };
+
+    // Close modal
+    window.closeOrgModal = function() {
+      document.getElementById('orgModal').classList.remove('show');
+    };
+
+    // Open new organization page
+    window.openNewOrgPage = function() {
+      window.open('organization-registration.html', '_blank');
+    };
+
+    // Navigation
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Update active state
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        link.classList.add('active');
+
+        // Show section
+        const section = link.dataset.section;
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(`${section}Section`).classList.add('active');
+
+        // Load data
+        if (section === 'organizations') {
+          loadOrganizations();
+        }
+      });
+    });
+
+    // Logout
+    window.handleLogout = async function() {
+      if (confirm('هل أنت متأكد من تسجيل الخروج؟')) {
+        await supabase.auth.signOut();
+        window.location.href = 'index.html';
+      }
+    };
+
+    // Search organizations on Enter key
+    document.getElementById('orgSearch').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        loadOrganizations();
+      }
+    });
+
+    // Initialize
+    window.addEventListener('load', async () => {
+      const authenticated = await checkSession();
+      if (authenticated) {
+        loadDashboardStats();
+        loadOrganizations();
+      }
+    });
+  </script>
+</body>
+</html>
