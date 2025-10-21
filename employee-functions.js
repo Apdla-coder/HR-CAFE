@@ -1,11 +1,11 @@
-// Import the Supabase client
+// employee-functions.js - Multi-tenant Version
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const supabaseUrl = "https://nxhnivykhlnauewpmuqv.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54aG5pdnlraGxuYXVld3BtdXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4Mjk2NTYsImV4cCI6MjA3NDQwNTY1Nn0.-3ps3Mp7aYuA2m54sW3gNN3CpZ2acRtKGj8jI5eHTOU";
 window.supabase = createClient(supabaseUrl, supabaseKey);
 
-// =============== ثوابت التطبيق ===============
+// =============== متغيرات عامة ===============
 const STATUS_TYPES = {
     WORKING: 'working',
     MISSING_CHECKOUT: 'missing_checkout',
@@ -20,17 +20,13 @@ const STATUS_TEXT = {
     [STATUS_TYPES.ABSENT]: 'غائب'
 };
 
-// موقع الشركة
-const companyLocation = {
-    lat: 30.4763889,
-    lng: 31.1798333
-};
-
-const allowedRadius = 200; // متر
-
-// متغيرات عامة
+// متغيرات المستخدم والشركة والفرع
 window.currentUser = null;
 window.currentMonth = new Date();
+let currentOrganizationId = null;
+let currentBranchId = null;
+let allowedRadius = 200;
+let companyLocation = { lat: 30.4763889, lng: 31.1798333 };
 
 // =============== دوال المساعدة ===============
 function getDistanceInMeters(lat1, lon1, lat2, lon2) {
@@ -100,6 +96,44 @@ function formatDate(dateStr) {
     });
 }
 
+// =============== تحميل بيانات المستخدم والشركة ===============
+async function loadUserOrganizationData() {
+    try {
+        const { data: userData, error } = await window.supabase
+            .from('users')
+            .select(`
+                *, 
+                organizations(id, name, code),
+                branches!users_primary_branch_id_fkey(id, name, location_lat, location_lng, allowed_radius)
+            `)
+            .eq('id', window.currentUser.id)
+            .single();
+
+        if (error) throw error;
+
+        currentOrganizationId = userData.organization_id;
+        currentBranchId = userData.primary_branch_id;
+
+        // تحديث موقع الفرع ونطاق الحضور
+        if (userData.branches) {
+            if (userData.branches.location_lat && userData.branches.location_lng) {
+                companyLocation = {
+                    lat: parseFloat(userData.branches.location_lat),
+                    lng: parseFloat(userData.branches.location_lng)
+                };
+            }
+            if (userData.branches.allowed_radius) {
+                allowedRadius = userData.branches.allowed_radius;
+            }
+        }
+
+        return userData;
+    } catch (error) {
+        console.error("Error loading user organization data:", error);
+        return null;
+    }
+}
+
 // =============== دوال قاعدة البيانات ===============
 async function fetchAttendanceForDate(userId, date) {
     try {
@@ -107,6 +141,7 @@ async function fetchAttendanceForDate(userId, date) {
             .from('attendance')
             .select('*')
             .eq('user_id', userId)
+            .eq('organization_id', currentOrganizationId)
             .eq('date', date)
             .maybeSingle();
         
@@ -124,6 +159,7 @@ async function fetchAttendance(userId) {
             .from('attendance')
             .select('*')
             .eq('user_id', userId)
+            .eq('organization_id', currentOrganizationId)
             .order('date', { ascending: false })
             .limit(10);
         if (error) throw error;
@@ -145,6 +181,7 @@ async function fetchAttendanceForMonth(userId, year, month) {
             .from('attendance')
             .select('*')
             .eq('user_id', userId)
+            .eq('organization_id', currentOrganizationId)
             .gte('date', startDate)
             .lt('date', endDate);
             
@@ -177,6 +214,7 @@ async function fetchSalary(userId) {
             .from('salaries')
             .select('*')
             .eq('user_id', userId)
+            .eq('organization_id', currentOrganizationId)
             .order('month', { ascending: false })
             .limit(1);
         if (error) throw error;
@@ -193,6 +231,7 @@ async function fetchLeaves(userId) {
             .from('leaves')
             .select('*')
             .eq('user_id', userId)
+            .eq('organization_id', currentOrganizationId)
             .order('start_date', { ascending: false });
         if (error) throw error;
         return data || [];
@@ -212,7 +251,7 @@ export async function recordCheckIn() {
         );
 
         if (distance > allowedRadius) {
-            throw new Error(`يجب أن تكون داخل نطاق الشركة (المسافة: ${Math.round(distance)} م)`);
+            throw new Error(`يجب أن تكون داخل نطاق الفرع (المسافة: ${Math.round(distance)} م)`);
         }
 
         const today = new Date().toISOString().split('T')[0];
@@ -227,6 +266,8 @@ export async function recordCheckIn() {
             .from('attendance')
             .insert([{
                 user_id: window.currentUser.id,
+                organization_id: currentOrganizationId,
+                branch_id: currentBranchId,
                 date: today,
                 check_in: time,
                 status: STATUS_TYPES.WORKING,
@@ -248,7 +289,6 @@ export async function recordCheckIn() {
         
         await Promise.all([
             loadAttendanceList(),
-            loadAttendanceCalendar(),
             calculateExpectedSalary()
         ]);
 
@@ -267,7 +307,7 @@ export async function recordCheckOut() {
         );
 
         if (distance > allowedRadius) {
-            throw new Error(`يجب أن تكون داخل نطاق الشركة (المسافة: ${Math.round(distance)} م)`);
+            throw new Error(`يجب أن تكون داخل نطاق الفرع (المسافة: ${Math.round(distance)} م)`);
         }
 
         const today = new Date().toISOString().split('T')[0];
@@ -303,7 +343,6 @@ export async function recordCheckOut() {
 
         await Promise.all([
             loadAttendanceList(),
-            loadAttendanceCalendar(),
             calculateExpectedSalary()
         ]);
 
@@ -354,6 +393,9 @@ export async function checkTodayAttendance() {
 
 // =============== دوال تحميل البيانات ===============
 export async function loadUserProfile() {
+    // تحميل بيانات الشركة والفرع أولاً
+    await loadUserOrganizationData();
+
     const profile = await fetchUserProfile(window.currentUser.id);
     const detailsDiv = document.getElementById('profileDetails');
     
@@ -485,87 +527,6 @@ export async function loadAttendanceList() {
     }
 }
 
-export async function loadAttendanceCalendar() {
-    const year = window.currentMonth.getFullYear();
-    const month = window.currentMonth.getMonth();
-    
-    const currentMonthEl = document.getElementById('currentMonth');
-    if (currentMonthEl) {
-        currentMonthEl.textContent = new Date(year, month).toLocaleDateString('ar-SA', { 
-            month: 'long', 
-            year: 'numeric' 
-        });
-    }
-    
-    const attendanceRecords = await fetchAttendanceForMonth(window.currentUser.id, year, month + 1);
-    const calendarDates = document.getElementById('calendarDates');
-    
-    if (!calendarDates) return;
-    
-    calendarDates.innerHTML = '';
-    
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
-    // Add empty cells
-    for (let i = 0; i < firstDay; i++) {
-        const emptyCell = document.createElement('div');
-        emptyCell.className = 'calendar-date';
-        calendarDates.appendChild(emptyCell);
-    }
-    
-    const today = new Date();
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const date = new Date(year, month, day);
-        const dateCell = document.createElement('div');
-        dateCell.className = 'calendar-date';
-        dateCell.textContent = day;
-        
-        if (date.toDateString() === today.toDateString()) {
-            dateCell.classList.add('today');
-        }
-        
-        const attendance = attendanceRecords.find(record => record.date === dateStr);
-        if (attendance) {
-            if (attendance.status === 'complete') {
-                dateCell.classList.add('present');
-            } else if (attendance.status === 'absent') {
-                dateCell.classList.add('absent');
-            } else if (attendance.status === 'working') {
-                dateCell.classList.add('working');
-            } else if (attendance.status === 'missing_checkout') {
-                dateCell.classList.add('missing-checkout');
-            }
-        }
-        
-        calendarDates.appendChild(dateCell);
-    }
-    
-    // Calculate stats
-    const presentDays = attendanceRecords.filter(r => r.status === 'complete').length;
-    const absentDays = attendanceRecords.filter(r => r.status === 'absent').length;
-    const lateDays = attendanceRecords.filter(record => {
-        if (record.check_in) {
-            const checkInTime = new Date(`1970-01-01T${record.check_in}`);
-            const standardTime = new Date('1970-01-01T09:00:00');
-            return checkInTime > standardTime;
-        }
-        return false;
-    }).length;
-    const missingCheckoutDays = attendanceRecords.filter(r => r.status === 'missing_checkout').length;
-    
-    const presentDaysEl = document.getElementById('presentDays');
-    const absentDaysEl = document.getElementById('absentDays');
-    const lateDaysEl = document.getElementById('lateDays');
-    const missingCheckoutDaysEl = document.getElementById('missingCheckoutDays');
-    
-    if (presentDaysEl) presentDaysEl.textContent = presentDays;
-    if (absentDaysEl) absentDaysEl.textContent = absentDays;
-    if (lateDaysEl) lateDaysEl.textContent = lateDays;
-    if (missingCheckoutDaysEl) missingCheckoutDaysEl.textContent = missingCheckoutDays;
-}
-
 export async function loadLeaveRequests() {
     const leaves = await fetchLeaves(window.currentUser.id);
     const listDiv = document.getElementById('leaveRequests');
@@ -625,6 +586,8 @@ export async function submitLeaveRequest(leaveData) {
     try {
         const insertData = {
             user_id: window.currentUser.id,
+            organization_id: currentOrganizationId,
+            branch_id: currentBranchId,
             start_date: leaveData.start_date,
             end_date: leaveData.end_date,
             type: leaveData.type,
@@ -664,21 +627,19 @@ export async function calculateExpectedSalary() {
         const currentMonth = `${year}-${String(month).padStart(2, '0')}`;
         const daysInMonth = new Date(year, month, 0).getDate();
         
-        // الحصول على الراتب الأساسي الشهري من جدول users
         const baseMonthlySalary = profile.basic_salary || 0;
         
-        // جلب سجلات الحضور للشهر الحالي
         const { data: attendance, error } = await window.supabase
             .from('attendance')
             .select('*')
             .eq('user_id', window.currentUser.id)
+            .eq('organization_id', currentOrganizationId)
             .gte('date', `${currentMonth}-01`)
             .lte('date', `${currentMonth}-${daysInMonth}`);
             
         if (error) throw error;
         
-        // الحصول على عدد ساعات الشيفت
-        let shiftHours = 8; // القيمة الافتراضية
+        let shiftHours = 8;
         
         if (profile.shift_type_id) {
             const { data: shiftData } = await window.supabase
@@ -694,28 +655,22 @@ export async function calculateExpectedSalary() {
             shiftHours = profile.shift_type;
         }
         
-        // حساب الأجر بالساعة من الراتب الشهري
-        // (الراتب الشهري ÷ عدد أيام الشهر ÷ ساعات الشيفت اليومية)
         const dailySalary = baseMonthlySalary / daysInMonth;
         const hourlyRate = profile.hourly_rate || (dailySalary / shiftHours);
         
-        // إحصائيات الحضور
-        let attendedDays = 0;  // الأيام التي حضر فيها
-        let absentDays = 0;    // الأيام الغائب فيها
+        let attendedDays = 0;
+        let absentDays = 0;
         let totalLateMinutes = 0;
         let totalOvertimeMinutes = 0;
         
-        // حساب عدد أيام العمل حتى اليوم الحالي في الشهر
         const today = now.getDate();
-        const workDaysUntilToday = today; // عدد الأيام من بداية الشهر حتى اليوم
+        const workDaysUntilToday = today;
         
         attendance?.forEach(record => {
-            // عد أيام الحضور الفعلية
             if (record.check_in && record.status !== 'absent') {
                 attendedDays++;
             }
             
-            // حساب التأخير
             if (record.late_minutes) {
                 totalLateMinutes += record.late_minutes;
             } else if (record.check_in) {
@@ -725,7 +680,6 @@ export async function calculateExpectedSalary() {
                 if (lateMins > 0) totalLateMinutes += lateMins;
             }
             
-            // حساب الوقت الإضافي
             if (record.overtime_minutes) {
                 totalOvertimeMinutes += record.overtime_minutes;
             } else if (record.check_in && record.check_out) {
@@ -738,25 +692,14 @@ export async function calculateExpectedSalary() {
             }
         });
         
-        // حساب أيام الغياب = أيام العمل حتى اليوم - أيام الحضور الفعلية
         absentDays = workDaysUntilToday - attendedDays;
         if (absentDays < 0) absentDays = 0;
         
-        // حساب الخصومات
-        // 1. خصم الغياب = عدد أيام الغياب × الأجر اليومي
         const absenceDeduction = absentDays * dailySalary;
-        
-        // 2. خصم التأخير = (دقائق التأخير ÷ 60) × الأجر بالساعة
         const lateDeduction = (totalLateMinutes / 60) * hourlyRate;
-        
-        // حساب المكافآت
-        // مكافأة الوقت الإضافي = (دقائق الإضافي ÷ 60) × الأجر بالساعة × 1.5
         const overtimeBonus = (totalOvertimeMinutes / 60) * hourlyRate * 1.5;
-        
-        // الراتب المتوقع = الراتب الأساسي - خصم الغياب - خصم التأخير + مكافأة الإضافي
         const expectedSalary = baseMonthlySalary - absenceDeduction - lateDeduction + overtimeBonus;
         
-        // تحديث العناصر في الصفحة
         const workDaysCountEl = document.getElementById('workDaysCount');
         const lateMinutesCountEl = document.getElementById('lateMinutesCount');
         const expectedLateDeductionEl = document.getElementById('expectedLateDeduction');
@@ -791,6 +734,7 @@ export async function loadNotifications() {
             .from('notifications')
             .select('*')
             .eq('user_id', window.currentUser.id)
+            .eq('organization_id', currentOrganizationId)
             .order('created_at', { ascending: false })
             .limit(10);
 
@@ -828,6 +772,7 @@ export async function markAllNotificationsAsRead() {
             .from('notifications')
             .update({ is_read: true })
             .eq('user_id', window.currentUser.id)
+            .eq('organization_id', currentOrganizationId)
             .eq('is_read', false);
 
         if (error) throw error;
@@ -872,6 +817,7 @@ export async function loadInventory() {
         const { data: inventory, error } = await window.supabase
             .from('inventory_items')
             .select('*')
+            .eq('organization_id', currentOrganizationId)
             .order('name');
 
         if (error) throw error;
@@ -915,6 +861,8 @@ export async function addInventoryItem(itemData) {
             .from('inventory_items')
             .insert([{
                 ...itemData,
+                organization_id: currentOrganizationId,
+                branch_id: currentBranchId,
                 created_at: new Date().toISOString(),
                 last_update: new Date().toISOString()
             }]);
@@ -1003,6 +951,8 @@ export async function orderMoreItems(itemId) {
             .from('employee_requests')
             .insert([{
                 user_id: window.currentUser.id,
+                organization_id: currentOrganizationId,
+                branch_id: currentBranchId,
                 title: `طلب توريد ${item.name}`,
                 type: 'supply',
                 details: `طلب توريد كمية ${requestedQuantity} من ${item.name}`,
@@ -1029,6 +979,7 @@ export async function loadEmployeeRequests() {
             .from('employee_requests')
             .select('*')
             .eq('user_id', window.currentUser.id)
+            .eq('organization_id', currentOrganizationId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -1067,6 +1018,8 @@ export async function submitEmployeeRequest(requestData) {
             .from('employee_requests')
             .insert([{
                 user_id: window.currentUser.id,
+                organization_id: currentOrganizationId,
+                branch_id: currentBranchId,
                 title: requestData.title,
                 type: requestData.type,
                 details: requestData.details,
@@ -1127,7 +1080,6 @@ export default {
     loadUserProfile,
     loadSalaryInfo,
     loadAttendanceList,
-    loadAttendanceCalendar,
     loadLeaveRequests,
     submitLeaveRequest,
     calculateExpectedSalary,
@@ -1141,4 +1093,4 @@ export default {
     loadEmployeeRequests,
     submitEmployeeRequest,
     showNotification
-}
+};

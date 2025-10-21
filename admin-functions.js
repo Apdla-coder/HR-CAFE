@@ -1,5 +1,4 @@
-// admin-functions.js - جميع وظائف لوحة تحكم المدير
-
+// admin-functions.js - Multi-tenant Version
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const supabaseUrl = "https://nxhnivykhlnauewpmuqv.supabase.co";
@@ -7,6 +6,9 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const sb = createClient(supabaseUrl, supabaseKey);
 
 let currentEditingId = null;
+let currentOrganizationId = null;
+let currentBranchId = null;
+let userBranches = [];
 
 // =============== دوال مساعدة ===============
 function showNotification(text, type = 'success') {
@@ -30,7 +32,7 @@ async function checkAdminSession() {
 
     const { data: userData, error } = await sb
         .from('users')
-        .select('*')
+        .select('*, organizations(name, code), branches(name, code)')
         .eq('id', session.user.id)
         .single();
 
@@ -39,6 +41,17 @@ async function checkAdminSession() {
         window.location.href = 'index.html';
         return null;
     }
+
+    currentOrganizationId = userData.organization_id;
+    currentBranchId = userData.primary_branch_id;
+
+    const { data: branches } = await sb
+        .from('branches')
+        .select('*')
+        .eq('organization_id', currentOrganizationId)
+        .eq('is_active', true);
+    
+    userBranches = branches || [];
 
     const adminNameEl = document.getElementById('adminName');
     if (adminNameEl) {
@@ -54,9 +67,17 @@ async function loadStats() {
         const today = new Date().toISOString().split('T')[0];
         
         const [usersResult, leavesResult, attendanceResult] = await Promise.all([
-            sb.from('users').select('id, status, role'),
-            sb.from('leaves').select('id').eq('status', 'pending'),
-            sb.from('attendance').select('id').eq('date', today)
+            sb.from('users')
+              .select('id, status, role')
+              .eq('organization_id', currentOrganizationId),
+            sb.from('leaves')
+              .select('id')
+              .eq('status', 'pending')
+              .eq('organization_id', currentOrganizationId),
+            sb.from('attendance')
+              .select('id')
+              .eq('date', today)
+              .eq('organization_id', currentOrganizationId)
         ]);
 
         const users = usersResult.data || [];
@@ -80,8 +101,14 @@ async function loadUsers() {
     try {
         const { data: users, error } = await sb
             .from('users')
-            .select('id, full_name, email, department, position, status, role, photo_url, shift_type_id, work_shifts(name)')
+            .select(`
+                id, full_name, email, department, position, status, role, 
+                photo_url, shift_type_id, 
+                work_shifts(name),
+                branches!users_primary_branch_id_fkey(name, code)
+            `)
             .eq('role', 'employee')
+            .eq('organization_id', currentOrganizationId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -118,6 +145,7 @@ async function loadUsers() {
                             <th>البريد</th>
                             <th>القسم</th>
                             <th>المسمى</th>
+                            <th>الفرع</th>
                             <th>نوع الشيفت</th>
                             <th>الحالة</th>
                             <th>الإجراءات</th>
@@ -129,6 +157,7 @@ async function loadUsers() {
             const statusClass = user.status === 'active' ? 'status-active' : 'status-inactive';
             const statusText = user.status === 'active' ? 'نشط' : 'غير نشط';
             const photoUrl = user.photo_url || 'default-avatar.png.jpg';
+            const branchName = user.branches?.name || 'غير محدد';
 
             html += `
                 <tr>
@@ -141,6 +170,7 @@ async function loadUsers() {
                     <td>${user.email}</td>
                     <td>${user.department || '-'}</td>
                     <td>${user.position || '-'}</td>
+                    <td>${branchName}</td>
                     <td>${user.work_shifts?.name || 'غير محدد'}</td>
                     <td><span class="status ${statusClass}">${statusText}</span></td>
                     <td>
@@ -173,10 +203,30 @@ window.openAddEmployeeModal = async function() {
     document.getElementById('employeeForm').reset();
     document.getElementById('empPassword').disabled = false;
     document.getElementById('empPassword').required = true;
+    
+    // إضافة حقل الفرع إذا لم يكن موجوداً
+    const form = document.getElementById('employeeForm');
+    let branchGroup = document.getElementById('empBranchGroup');
+    
+    if (!branchGroup) {
+        const positionGroup = document.querySelector('#empPosition').closest('.form-group');
+        branchGroup = document.createElement('div');
+        branchGroup.className = 'form-group';
+        branchGroup.id = 'empBranchGroup';
+        branchGroup.innerHTML = `
+            <label>الفرع *</label>
+            <select id="empBranch" required>
+                <option value="">جاري التحميل...</option>
+            </select>
+        `;
+        positionGroup.insertAdjacentElement('afterend', branchGroup);
+    }
+    
     document.getElementById('employeeModal').classList.add('show');
     
     await loadDepartments();
     await loadShifts();
+    await loadBranches();
 };
 
 async function loadDepartments() {
@@ -209,11 +259,21 @@ async function loadShifts() {
     });
 }
 
+async function loadBranches() {
+    const branchSelect = document.getElementById("empBranch");
+    if (!branchSelect) return;
+
+    branchSelect.innerHTML = '<option value="">اختر الفرع</option>';
+    userBranches.forEach(branch => {
+        branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+    });
+}
+
 window.viewEmployee = async function(id) {
     try {
         const { data: user, error } = await sb
             .from('users')
-            .select('*, work_shifts(name)')
+            .select('*, work_shifts(name), branches!users_primary_branch_id_fkey(name)')
             .eq('id', id)
             .single();
         
@@ -234,6 +294,7 @@ window.viewEmployee = async function(id) {
                         <p><strong>البريد:</strong> ${user.email}</p>
                         <p><strong>الهاتف:</strong> ${user.phone || '-'}</p>
                         <p><strong>القسم:</strong> ${user.department || '-'}</p>
+                        <p><strong>الفرع:</strong> ${user.branches?.name || 'غير محدد'}</p>
                     </div>
                     <div>
                         <p><strong>المسمى:</strong> ${user.position || '-'}</p>
@@ -266,6 +327,7 @@ window.editEmployee = async function(id) {
         
         await loadDepartments();
         await loadShifts();
+        await loadBranches();
 
         document.getElementById('empEmail').value = user.email || '';
         document.getElementById('empName').value = user.full_name || '';
@@ -274,6 +336,7 @@ window.editEmployee = async function(id) {
         document.getElementById('empDepartment').value = user.department || '';
         document.getElementById('empPosition').value = user.position || '';
         document.getElementById('empShift').value = user.shift_type_id || '';
+        document.getElementById('empBranch').value = user.primary_branch_id || '';
         document.getElementById('empSalary').value = user.basic_salary || '';
         document.getElementById('empStatus').value = user.status || 'active';
         document.getElementById('empPassword').value = '';
@@ -294,6 +357,7 @@ window.deleteEmployee = async function(id) {
         await sb.from('attendance').delete().eq('user_id', id);
         await sb.from('leaves').delete().eq('user_id', id);
         await sb.from('salary_calculations').delete().eq('user_id', id);
+        await sb.from('user_branches').delete().eq('user_id', id);
         
         const { error } = await sb.from('users').delete().eq('id', id);
         if (error) throw error;
@@ -307,7 +371,6 @@ window.deleteEmployee = async function(id) {
     }
 };
 
-// معالجة نموذج الموظف
 document.getElementById('employeeForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -321,6 +384,7 @@ document.getElementById('employeeForm')?.addEventListener('submit', async functi
     const department = document.getElementById('empDepartment').value;
     const position = document.getElementById('empPosition').value;
     const shiftTypeId = document.getElementById('empShift').value;
+    const branchId = document.getElementById('empBranch').value;
     const salary = document.getElementById('empSalary').value;
     const status = document.getElementById('empStatus').value;
     const password = document.getElementById('empPassword').value;
@@ -356,6 +420,8 @@ document.getElementById('employeeForm')?.addEventListener('submit', async functi
                 shift_type_id: shiftTypeId ? parseInt(shiftTypeId) : null,
                 basic_salary: salary ? parseFloat(salary) : null,
                 status: status,
+                organization_id: currentOrganizationId,
+                primary_branch_id: branchId || null,
                 updated_at: new Date().toISOString()
             };
 
@@ -363,6 +429,15 @@ document.getElementById('employeeForm')?.addEventListener('submit', async functi
 
             const { error } = await sb.from('users').update(updateData).eq('id', currentEditingId);
             if (error) throw error;
+
+            if (branchId) {
+                await sb.from('user_branches').delete().eq('user_id', currentEditingId);
+                await sb.from('user_branches').insert({
+                    user_id: currentEditingId,
+                    branch_id: branchId,
+                    is_primary: true
+                });
+            }
 
             messageDiv.className = 'message success';
             messageDiv.textContent = 'تم تحديث بيانات الموظف بنجاح';
@@ -405,6 +480,8 @@ document.getElementById('employeeForm')?.addEventListener('submit', async functi
                 basic_salary: salary ? parseFloat(salary) : null,
                 role: 'employee',
                 status: status,
+                organization_id: currentOrganizationId,
+                primary_branch_id: branchId || null,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString()
             };
@@ -413,6 +490,14 @@ document.getElementById('employeeForm')?.addEventListener('submit', async functi
 
             const { error: insertError } = await sb.from('users').insert([insertData]);
             if (insertError) throw insertError;
+
+            if (branchId) {
+                await sb.from('user_branches').insert({
+                    user_id: userId,
+                    branch_id: branchId,
+                    is_primary: true
+                });
+            }
 
             messageDiv.className = 'message success';
             messageDiv.textContent = 'تم إضافة الموظف بنجاح';
@@ -473,6 +558,7 @@ async function loadAttendance() {
         const { data: attendance, error } = await sb
             .from('attendance')
             .select('*, users(full_name, email)')
+            .eq('organization_id', currentOrganizationId)
             .gte('date', startDate)
             .order('date', { ascending: false });
 
@@ -544,6 +630,7 @@ async function loadLeaves() {
         const { data: leaves, error } = await sb
             .from('leaves')
             .select('*, users(full_name, email)')
+            .eq('organization_id', currentOrganizationId)
             .order('start_date', { ascending: false });
 
         if (error) throw error;
@@ -666,7 +753,7 @@ window.rejectLeave = async function(id) {
     }
 };
 
-// =============== نظام حساب الرواتب المحسّن ===============
+// =============== نظام حساب الرواتب ===============
 async function loadSalaries() {
     const section = document.getElementById('salariesSection');
     section.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>جاري التحميل...</p></div>';
@@ -675,6 +762,7 @@ async function loadSalaries() {
         const { data: salaries, error } = await sb
             .from('salary_calculations')
             .select(`*, users (full_name, email, department)`)
+            .eq('organization_id', currentOrganizationId)
             .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -753,7 +841,6 @@ async function loadSalaries() {
             const statusClass = isPaid ? 'status-active' : 'status-pending';
             const statusText = isPaid ? 'مدفوع' : 'معلق';
             
-            // حساب خصم الغياب من البيانات
             const dailySalary = (salary.base_salary || 0) / (salary.total_work_days || 30);
             const absenceDeduction = (salary.absent_days || 0) * dailySalary;
             const totalDeductions = (salary.leave_deductions || 0);
@@ -805,7 +892,6 @@ async function loadSalaries() {
     }
 }
 
-// دالة حساب الرواتب بنظام صحيح 100%
 window.calculateMonthlySalaries = async function() {
     const month = prompt('أدخل الشهر (YYYY-MM):', new Date().toISOString().slice(0, 7));
     if (!month) return;
@@ -813,12 +899,12 @@ window.calculateMonthlySalaries = async function() {
     try {
         showNotification('جاري حساب الرواتب...', 'info');
 
-        // جلب الموظفين النشطين
         const { data: users, error: usersError } = await sb
             .from('users')
             .select('id, full_name, email, basic_salary, shift_type_id, hourly_rate')
             .eq('status', 'active')
-            .eq('role', 'employee');
+            .eq('role', 'employee')
+            .eq('organization_id', currentOrganizationId);
 
         if (usersError) throw usersError;
 
@@ -834,11 +920,9 @@ window.calculateMonthlySalaries = async function() {
         endDate.setDate(0);
         const endDateStr = endDate.toISOString().split('T')[0];
         
-        // عدد أيام الشهر الفعلية
         const daysInMonth = endDate.getDate();
 
         for (const user of users) {
-            // التحقق من وجود راتب مسبق
             const { data: existing } = await sb
                 .from('salary_calculations')
                 .select('id')
@@ -851,19 +935,17 @@ window.calculateMonthlySalaries = async function() {
                 continue;
             }
 
-            // جلب سجلات الحضور
             const { data: attendance } = await sb
                 .from('attendance')
                 .select('date, check_in, check_out, late_minutes, overtime_minutes')
                 .eq('user_id', user.id)
+                .eq('organization_id', currentOrganizationId)
                 .gte('date', startDate)
                 .lte('date', endDateStr);
 
-            // حساب أيام الحضور والغياب
             const actualWorkDays = attendance?.length || 0;
             const absentDays = daysInMonth - actualWorkDays;
 
-            // حساب إجمالي دقائق التأخير والإضافي
             let totalLateMinutes = 0;
             let totalOvertimeMinutes = 0;
 
@@ -872,13 +954,13 @@ window.calculateMonthlySalaries = async function() {
                 totalOvertimeMinutes += record.overtime_minutes || 0;
             });
 
-            // جلب الإجازات غير المدفوعة
             const { data: leaves } = await sb
                 .from('leaves')
                 .select('start_date, end_date, type')
                 .eq('user_id', user.id)
                 .eq('status', 'approved')
                 .eq('type', 'unpaid')
+                .eq('organization_id', currentOrganizationId)
                 .gte('start_date', startDate)
                 .lte('end_date', endDateStr);
 
@@ -890,38 +972,23 @@ window.calculateMonthlySalaries = async function() {
                 unpaidLeaveDays += days;
             });
 
-            // ===== الحسابات =====
             const basicSalary = user.basic_salary || 0;
-            
-            // الأجر اليومي = الراتب الشهري ÷ عدد أيام الشهر
             const dailySalary = basicSalary / daysInMonth;
-            
-            // الأجر بالساعة = الأجر اليومي ÷ 8 ساعات
             const hourlySalary = user.hourly_rate || (dailySalary / 8);
 
-            // 1. خصم الغياب = عدد أيام الغياب × الأجر اليومي
             const absenceDeductions = absentDays * dailySalary;
-
-            // 2. خصم التأخير = (إجمالي دقائق التأخير ÷ 60) × الأجر بالساعة
             const lateDeductions = (totalLateMinutes / 60) * hourlySalary;
-
-            // 3. مكافأة الإضافي = (إجمالي دقائق الإضافي ÷ 60) × الأجر بالساعة × 1.5
             const overtimeBonus = (totalOvertimeMinutes / 60) * hourlySalary * 1.5;
-
-            // 4. خصم الإجازات بدون راتب = عدد أيام الإجازة × الأجر اليومي
             const leaveDeductions = unpaidLeaveDays * dailySalary;
-
-            // 5. إجمالي الخصومات (الغياب + الإجازات)
             const totalLeaveDeductions = absenceDeductions + leaveDeductions;
-
-            // 6. الراتب الصافي = الراتب الأساسي - خصم الغياب - خصم التأخير - خصم الإجازات + مكافأة الإضافي
             const finalSalary = basicSalary - totalLeaveDeductions - lateDeductions + overtimeBonus;
 
-            // حفظ البيانات في قاعدة البيانات
             const { error: insertError } = await sb
                 .from('salary_calculations')
                 .insert({
                     user_id: user.id,
+                    organization_id: currentOrganizationId,
+                    branch_id: currentBranchId,
                     month: month,
                     base_salary: basicSalary,
                     shift_hours: 8,
@@ -934,15 +1001,12 @@ window.calculateMonthlySalaries = async function() {
                     overtime_hours: (totalOvertimeMinutes / 60),
                     unpaid_leave_days: unpaidLeaveDays,
                     final_salary: finalSalary,
-                    notes: `حضر: ${actualWorkDays} يوم | غاب: ${absentDays} يوم | تأخير: ${totalLateMinutes} دقيقة | إضافي: ${totalOvertimeMinutes} دقيقة | خصم غياب: ${absenceDeductions.toFixed(2)} ج.م`,
+                    notes: `حضر: ${actualWorkDays} يوم | غاب: ${absentDays} يوم | تأخير: ${totalLateMinutes} دقيقة | إضافي: ${totalOvertimeMinutes} دقيقة`,
                     created_at: new Date().toISOString()
                 });
 
             if (!insertError) {
                 successCount++;
-                console.log(`✅ تم حساب راتب: ${user.full_name} = ${finalSalary.toFixed(2)} ج.م`);
-            } else {
-                console.error(`❌ خطأ في حساب راتب: ${user.full_name}`, insertError);
             }
         }
 
@@ -1267,7 +1331,7 @@ window.logout = async function() {
     }
 };
 
-// =============== تصدير الدوال للاستخدام العام ===============
+// =============== تصدير الدوال ===============
 window.adminFunctions = {
     loadUsers,
     loadAttendance,
