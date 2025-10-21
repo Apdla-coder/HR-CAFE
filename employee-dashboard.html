@@ -1,1974 +1,679 @@
-    <!DOCTYPE html>
-    <html lang="ar">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>بوابة الموظف</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <style>
-            /* محتوى CSS كما هو */
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الموظف - نظام إدارة الموظفين</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        body.dark-mode .header {
+            background: #1e1e2f;
+            color: #e6e6e6;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: #667eea;
+        }
+
+
+
+        body.dark-mode .header h1 {
+            color: #a8b3ff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Grid Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        body.dark-mode .card {
+            background: #1e1e2f;
+            color: #e6e6e6;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        body.dark-mode .card-header {
+            border-bottom-color: #333;
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        .card-header h2 {
+            font-size: 1.3rem;
+            color: #333;
+        }
+
+        body.dark-mode .card-header h2 {
+            color: #e6e6e6;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+            color: white;
+        }
+
+        /* Attendance Section */
+        .attendance-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .time-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        body.dark-mode .time-display {
+            background: #2d2d42;
+        }
+
+        .time-box {
+            text-align: center;
+        }
+
+        .time-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        body.dark-mode .time-label {
+            color: #aaa;
+        }
+
+        .time-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        body.dark-mode .time-value {
+            color: #a8b3ff;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        body.dark-mode .form-group label {
+            color: #e6e6e6;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group select,
+        body.dark-mode .form-group textarea {
+            background: #2d2d42;
+            border-color: #444;
+            color: #e6e6e6;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Profile Info */
+        .profile-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        body.dark-mode .profile-item {
+            border-bottom-color: #333;
+        }
+
+        .profile-label {
+            font-weight: 600;
+            width: 150px;
+            color: #666;
+        }
+
+        body.dark-mode .profile-label {
+            color: #aaa;
+        }
+
+        .profile-value {
+            flex: 1;
+            color: #333;
+        }
+
+        body.dark-mode .profile-value {
+            color: #e6e6e6;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-present { background: #d4edda; color: #155724; }
+        .status-absent { background: #f8d7da; color: #721c24; }
+        .status-working { background: #fff3cd; color: #856404; }
+        .status-pending { background: #cce5ff; color: #004085; }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            font-size: 1.2rem;
+            z-index: 999;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
             }
-            body {
-                background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-                color: #333;
-                padding: 20px;
-                min-height: 100vh;
-                transition: background 0.3s ease;
-            }
-            body.dark-mode {
-                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-                color: #e6e6e6;
-            }
-            .employee-container {
-                max-width: 1000px;
-                margin: 30px auto;
-                background: white;
-                border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                overflow: hidden;
-                transition: background 0.3s ease, box-shadow 0.3s ease;
-            }
-            body.dark-mode .employee-container {
-                background: #1e1e2f;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            }
+            
             .header {
-                background: linear-gradient(120deg, #28a745, #218838);
-                color: white;
-                padding: 25px 30px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            body.dark-mode .header {
-                background: linear-gradient(120deg, #1e7e34, #1a6a2c);
-            }
-            .header h1 {
-                font-size: 1.8rem;
-                font-weight: 600;
-            }
-            .user-info {
-                display: flex;
-                align-items: center;
+                flex-direction: column;
+                text-align: center;
                 gap: 15px;
             }
-            .avatar {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #28a745;
-                font-size: 1.5rem;
-                font-weight: bold;
-            }
-            body.dark-mode .avatar {
-                background: #2d2d42;
-                color: #4caf50;
-            }
-            .user-details {
-                text-align: right;
-            }
-            .user-name {
-                font-weight: 600;
-                font-size: 1.1rem;
-            }
-            .user-role {
-                font-size: 0.9rem;
-                opacity: 0.9;
-            }
-            .main-content {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 25px;
-                padding: 25px;
-            }
-            
-            #profileSection {
-                grid-column: 1 / 2;
-                grid-row: 1 / 2;
-            }
-            
-            #attendanceSection {
-                grid-column: 2 / 3;
-                grid-row: 1 / 3;
-            }
-            
-            #leaveSection {
-                grid-column: 1 / 2;
-                grid-row: 2 / 3;
-            }
-            
-            #salarySection {
-                grid-column: 1 / 2;
-                grid-row: 3 / 4;
-            }
-            
-            #notificationsSection {
-                grid-column: 2 / 3;
-                grid-row: 3 / 4;
-            }
-            
-            #inventorySection {
-                grid-column: 1 / 3;
-                grid-row: 4 / 5;
-            }
-            
-            #employeeRequestsSection {
-                grid-column: 1 / 3;
-                grid-row: 5 / 6;
-            }
-            
-            @media (max-width: 1024px) {
-                .main-content {
-                    grid-template-columns: 1fr;
-                    gap: 20px;
-                }
-                
-                #profileSection,
-                #attendanceSection,
-                #leaveSection,
-                #salarySection,
-                #notificationsSection,
-                #inventorySection,
-                #employeeRequestsSection {
-                    grid-column: 1;
-                    grid-row: auto;
-                }
-            }
-            section {
-                background: #f9fbfd;
-                border-radius: 12px;
-                padding: 20px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                border: 1px solid #eaeff5;
-                transition: background 0.3s ease;
-            }
-            body.dark-mode section {
-                background: #2d2d42;
-                border-color: #444;
-            }
-            h2 {
-                color: #28a745;
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #eaeff5;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            body.dark-mode h2 {
-                color: #4caf50;
-                border-bottom-color: #444;
-            }
-            h2 i {
-                font-size: 1.3rem;
-            }
-            h3 {
-                color: #28a745;
-                margin-bottom: 15px;
-                padding-bottom: 8px;
-                border-bottom: 1px solid #eaeff5;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            body.dark-mode h3 {
-                color: #4caf50;
-                border-bottom-color: #444;
-            }
-            h3 i {
-                font-size: 1.1rem;
-            }
-            .profile-card {
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            }
-            body.dark-mode .profile-card {
-                background: #3d3d5c;
-                color: #e6e6e6;
-            }
-            .profile-item {
-                display: flex;
-                margin-bottom: 15px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid #f0f4f8;
-            }
-            body.dark-mode .profile-item {
-                border-bottom-color: #444;
-            }
-            .profile-label {
-                font-weight: 600;
-                width: 120px;
-                color: #555;
-            }
-            body.dark-mode .profile-label {
-                color: #bbb;
-            }
-            .profile-value {
-                flex: 1;
-                color: #333;
-            }
-            body.dark-mode .profile-value {
-                color: #e6e6e6;
-            }
+
             .attendance-buttons {
-                display: flex;
-                gap: 15px;
-                margin-bottom: 20px;
-            }
-            .attendance-btn {
-                flex: 1;
-                padding: 15px;
-                border: none;
-                border-radius: 8px;
-                color: white;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-            }
-            .check-in-btn {
-                background: linear-gradient(120deg, #007bff, #0056b3);
-            }
-            .check-out-btn {
-                background: linear-gradient(120deg, #dc3545, #c82333);
-            }
-            .attendance-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-            .attendance-btn:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-                transform: none;
-                box-shadow: none;
-            }
-            .status-container {
-                background: #e8f4ff;
-                border-radius: 8px;
-                padding: 15px;
-                margin-top: 15px;
-            }
-            body.dark-mode .status-container {
-                background: #1a237e;
-            }
-            .attendance-list {
-                margin-top: 20px;
-            }
-            .attendance-list h3 {
-                margin-bottom: 15px;
-                color: #28a745;
-            }
-            body.dark-mode .attendance-list h3 {
-                color: #4caf50;
-            }
-            .attendance-item {
-                background: white;
-                border-radius: 8px;
-                padding: 12px 15px;
-                margin-bottom: 10px;
-                display: flex;
-                justify-content: space-between;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            }
-            body.dark-mode .attendance-item {
-                background: #3d3d5c;
-            }
-            .attendance-date {
-                font-weight: 600;
-            }
-            .attendance-times {
-                display: flex;
-                gap: 15px;
-            }
-            .time-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .time-label {
-                font-size: 0.8rem;
-                color: #777;
-            }
-            body.dark-mode .time-label {
-                color: #aaa;
-            }
-            .time-value {
-                font-weight: 600;
-            }
-            .status-badge {
-                padding: 4px 10px;
-                border-radius: 20px;
-                font-size: 0.85rem;
-                font-weight: 600;
-            }
-            .status-present {
-                background: #d4edda;
-                color: #155724;
-            }
-            .status-absent {
-                background: #f8d7da;
-                color: #721c24;
-            }
-            .status-working {
-                background: #fff3cd;
-                color: #856404;
-            }
-            .status-missing-checkout {
-                background: #d1ecf1;
-                color: #0c5460;
-            }
-            body.dark-mode .status-present {
-                background: #2e7d32;
-                color: #e8f5e9;
-            }
-            body.dark-mode .status-absent {
-                background: #c62828;
-                color: #ffebee;
-            }
-            body.dark-mode .status-working {
-                background: #ff8f00;
-                color: #212121;
-            }
-            body.dark-mode .status-missing-checkout {
-                background: #006064;
-                color: #e0f7fa;
-            }
-            .leave-form {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-            .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-            }
-            .form-group label {
-                font-weight: 600;
-                color: #555;
-            }
-            body.dark-mode .form-group label {
-                color: #bbb;
-            }
-            .form-group input, .form-group select, .form-group textarea {
-                padding: 12px;
-                border: 1px solid #ddd;
-                border-radius: 8px;
-                font-size: 1rem;
-                background: white;
-                color: #333;
-            }
-            body.dark-mode .form-group input,
-            body.dark-mode .form-group select,
-            body.dark-mode .form-group textarea {
-                background: #3d3d5c;
-                border-color: #444;
-                color: #e6e6e6;
-            }
-            .form-group textarea {
-                min-height: 80px;
-                resize: vertical;
-            }
-            .submit-btn {
-                background: linear-gradient(120deg, #28a745, #218838);
-                color: white;
-                border: none;
-                padding: 14px;
-                border-radius: 8px;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                margin-top: 10px;
-            }
-            .submit-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
-            }
-            .salary-card {
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            }
-            body.dark-mode .salary-card {
-                background: #3d3d5c;
-            }
-            .salary-item {
-                display: flex;
-                justify-content: space-between;
-                padding: 12px 0;
-                border-bottom: 1px solid #f0f4f8;
-            }
-            body.dark-mode .salary-item {
-                border-bottom-color: #444;
-            }
-            .salary-label {
-                color: #555;
-            }
-            body.dark-mode .salary-label {
-                color: #bbb;
-            }
-            .salary-value {
-                font-weight: 600;
-                color: #333;
-            }
-            body.dark-mode .salary-value {
-                color: #e6e6e6;
-            }
-            .total-salary {
-                font-weight: 700;
-                font-size: 1.2rem;
-                color: #28a745;
-                margin-top: 10px;
-                padding-top: 10px;
-                border-top: 2px solid #eaeff5;
-            }
-            body.dark-mode .total-salary {
-                color: #4caf50;
-                border-top-color: #444;
-            }
-            .leave-requests {
-                margin-top: 20px;
-            }
-            .leave-requests h3 {
-                margin-bottom: 15px;
-                color: #28a745;
-            }
-            body.dark-mode .leave-requests h3 {
-                color: #4caf50;
-            }
-            .leave-item {
-                background: white;
-                border-radius: 8px;
-                padding: 15px;
-                margin-bottom: 12px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            }
-            body.dark-mode .leave-item {
-                background: #3d3d5c;
-            }
-            .leave-header {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 10px;
-            }
-            .leave-dates {
-                font-weight: 600;
-            }
-            .leave-status {
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 0.85rem;
-                font-weight: 600;
-            }
-            .status-pending {
-                background: #fff3cd;
-                color: #856404;
-            }
-            .status-approved {
-                background: #d4edda;
-                color: #155724;
-            }
-            .status-rejected {
-                background: #f8d7da;
-                color: #721c24;
-            }
-            body.dark-mode .status-pending {
-                background: #ffc107;
-                color: #333;
-            }
-            body.dark-mode .status-approved {
-                background: #2e7d32;
-                color: #e8f5e9;
-            }
-            body.dark-mode .status-rejected {
-                background: #c62828;
-                color: #ffebee;
-            }
-            .leave-details {
-                display: flex;
-                justify-content: space-between;
-                color: #666;
-                font-size: 0.9rem;
-            }
-            body.dark-mode .leave-details {
-                color: #aaa;
-            }
-            .logout-btn {
-                background: linear-gradient(120deg, #6c757d, #495057);
-                color: white;
-                border: none;
-                padding: 12px 25px;
-                border-radius: 8px;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                margin: 20px 25px;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
-            }
-            .logout-btn:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
-            }
-            .message {
-                padding: 12px;
-                border-radius: 8px;
-                margin: 15px 0;
-                text-align: center;
-                font-weight: 500;
-            }
-            .message.error {
-                background-color: #f8d7da;
-                color: #721c24;
-                border: 1px solid #f5c6cb;
-            }
-            .message.success {
-                background-color: #d4edda;
-                color: #155724;
-                border: 1px solid #c3e6cb;
-            }
-            body.dark-mode .message.error {
-                background-color: #c62828;
-                color: #ffebee;
-                border-color: #d32f2f;
-            }
-            body.dark-mode .message.success {
-                background-color: #2e7d32;
-                color: #e8f5e9;
-                border-color: #388e3c;
-            }
-            .loading {
-                text-align: center;
-                padding: 20px;
-                color: #666;
-            }
-            body.dark-mode .loading {
-                color: #aaa;
-            }
-            .loading i {
-                font-size: 2rem;
-                margin-bottom: 10px;
-                color: #28a745;
-            }
-            body.dark-mode .loading i {
-                color: #4caf50;
-            }
-            .today-attendance {
-                display: flex;
-                justify-content: space-between;
-                margin-top: 15px;
-                padding: 15px;
-                background: #f0f9ff;
-                border-radius: 8px;
-            }
-            body.dark-mode .today-attendance {
-                background: #1a237e;
-            }
-            .time-display {
-                text-align: center;
-            }
-            .time-value-large {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #007bff;
-            }
-            body.dark-mode .time-value-large {
-                color: #64b5f6;
-            }
-            .time-label-large {
-                font-size: 0.9rem;
-                color: #666;
-            }
-            body.dark-mode .time-label-large {
-                color: #aaa;
-            }
-            .connection-status {
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                background: #d4edda;
-                color: #155724;
-                padding: 10px 15px;
-                border-radius: 8px;
-                font-weight: 600;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                z-index: 1000;
-            }
-            body.dark-mode .connection-status {
-                background: #2e7d32;
-                color: #e8f5e9;
-            }
-            .connection-status.error {
-                background: #f8d7da;
-                color: #721c24;
-            }
-            body.dark-mode .connection-status.error {
-                background: #c62828;
-                color: #ffebee;
-            }
-            .theme-toggle {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #28a745;
-                color: white;
-                border: none;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                font-size: 1.2rem;
-                cursor: pointer;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            body.dark-mode .theme-toggle {
-                background: #4caf50;
-            }
-            .notification {
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #28a745;
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                z-index: 1001;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                transform: translateX(150%);
-                transition: transform 0.3s ease;
-            }
-            .notification.show {
-                transform: translateX(0);
-            }
-            .notification.error {
-                background: #dc3545;
-            }
-            .notification.success {
-                background: #28a745;
-            }
-            .attendance-calendar {
-                margin-top: 20px;
-                padding: 15px;
-                background: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            }
-            body.dark-mode .attendance-calendar {
-                background: #3d3d5c;
-            }
-            .calendar-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 15px;
-            }
-            .calendar-grid {
-                display: grid;
-                grid-template-columns: repeat(7, 1fr);
-                gap: 5px;
-            }
-            .calendar-day {
-                text-align: center;
-                padding: 8px 0;
-                font-weight: 600;
-                color: #28a745;
-            }
-            body.dark-mode .calendar-day {
-                color: #4caf50;
-            }
-            .calendar-date {
-                background: #f0f4f8;
-                border-radius: 50%;
-                height: 35px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
-            body.dark-mode .calendar-date {
-                background: #3d3d5c;
-            }
-            .calendar-date:hover {
-                background: #28a745;
-                color: white;
-            }
-            .calendar-date.present {
-                background: #d4edda;
-                color: #155724;
-            }
-            body.dark-mode .calendar-date.present {
-                background: #2e7d32;
-                color: #e8f5e9;
-            }
-            .calendar-date.absent {
-                background: #f8d7da;
-                color: #721c24;
-            }
-            body.dark-mode .calendar-date.absent {
-                background: #c62828;
-                color: #ffebee;
-            }
-            .calendar-date.working {
-                background: #fff3cd;
-                color: #856404;
-            }
-            .calendar-date.missing-checkout {
-                background: #d1ecf1;
-                color: #0c5460;
-            }
-            body.dark-mode .calendar-date.working {
-                background: #ff8f00;
-                color: #212121;
-            }
-            body.dark-mode .calendar-date.missing-checkout {
-                background: #006064;
-                color: #e0f7fa;
-            }
-            .calendar-date.today {
-                border: 2px solid #28a745;
-            }
-            body.dark-mode .calendar-date.today {
-                border-color: #4caf50;
-            }
-            .attendance-details {
-                margin-top: 15px;
-                padding: 15px;
-                background: #f0f9ff;
-                border-radius: 8px;
-            }
-            body.dark-mode .attendance-details {
-                background: #1a237e;
-            }
-            .attendance-details h4 {
-                margin-bottom: 10px;
-                color: #28a745;
-            }
-            body.dark-mode .attendance-details h4 {
-                color: #4caf50;
-            }
-            .stats-container {
-                display: flex;
-                justify-content: space-around;
-                margin-top: 15px;
-            }
-            .stat-item {
-                text-align: center;
-            }
-            .stat-value {
-                font-size: 1.5rem;
-                font-weight: 700;
-                color: #28a745;
-            }
-            body.dark-mode .stat-value {
-                color: #4caf50;
-            }
-            .stat-label {
-                font-size: 0.8rem;
-                color: #666;
-            }
-            body.dark-mode .stat-label {
-                color: #aaa;
-            }
-            
-            /* Notifications Styles */
-            .notifications-container {
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            }
-            
-            body.dark-mode .notifications-container {
-                background: #3d3d5c;
-            }
-            
-            .notifications-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-            
-            .mark-all-read-btn {
-                background: #28a745;
-                color: white;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 5px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                font-size: 0.9rem;
-                transition: all 0.3s ease;
-            }
-            
-            .mark-all-read-btn:hover {
-                background: #218838;
-                transform: translateY(-2px);
-            }
-            
-            .notifications-list {
-                max-height: 400px;
-                overflow-y: auto;
-            }
-            
-            .notification-item {
-                padding: 15px;
-                border-bottom: 1px solid #eee;
-                display: flex;
-                align-items: flex-start;
-                gap: 15px;
-                transition: background-color 0.3s ease;
-            }
-            
-            body.dark-mode .notification-item {
-                border-bottom-color: #444;
-            }
-            
-            .notification-item:hover {
-                background-color: #f8f9fa;
-            }
-            
-            body.dark-mode .notification-item:hover {
-                background-color: #2d2d42;
-            }
-            
-            .notification-icon {
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.2rem;
-            }
-            
-            .notification-info {
-                flex: 1;
-            }
-            
-            .notification-title {
-                font-weight: 600;
-                margin-bottom: 5px;
-            }
-            
-            .notification-message {
-                color: #666;
-                font-size: 0.9rem;
-                margin-bottom: 8px;
-            }
-            
-            body.dark-mode .notification-message {
-                color: #aaa;
-            }
-            
-            .notification-time {
-                font-size: 0.8rem;
-                color: #999;
-            }
-            
-            body.dark-mode .notification-time {
-                color: #777;
-            }
-            
-            .notification-unread {
-                background-color: #e8f5e9;
-            }
-            
-            body.dark-mode .notification-unread {
-                background-color: #1a237e;
-            }
-            
-            .notifications-footer {
-                margin-top: 20px;
-                text-align: center;
-            }
-            
-            .load-more-btn {
-                background: none;
-                border: 2px solid #28a745;
-                color: #28a745;
-                padding: 8px 20px;
-                border-radius: 5px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin: 0 auto;
-                transition: all 0.3s ease;
-            }
-            
-            .load-more-btn:hover {
-                background: #28a745;
-                color: white;
-            }
-            
-            body.dark-mode .load-more-btn {
-                border-color: #4caf50;
-                color: #4caf50;
-            }
-            
-            body.dark-mode .load-more-btn:hover {
-                background: #4caf50;
-                color: white;
-            }
-
-            /* Inventory Styles */
-            .inventory-container {
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            }
-
-            body.dark-mode .inventory-container {
-                background: #3d3d5c;
-            }
-
-            .inventory-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
-
-            .add-item-btn {
-                background: #28a745;
-                color: white;
-                border: none;
-                padding: 8px 15px;
-                border-radius: 5px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 5px;
-                transition: all 0.3s ease;
-            }
-
-            .add-item-btn:hover {
-                background: #218838;
-                transform: translateY(-2px);
-            }
-
-            .inventory-search {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            .inventory-search input,
-            .inventory-search select {
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                font-size: 0.9rem;
-            }
-
-            .inventory-search input {
-                flex: 1;
-            }
-
-            body.dark-mode .inventory-search input,
-            body.dark-mode .inventory-search select {
-                background: #2d2d42;
-                border-color: #444;
-                color: #e6e6e6;
-            }
-
-            .inventory-table-container {
-                overflow-x: auto;
-                margin-bottom: 20px;
-            }
-
-            .inventory-table {
-                width: 100%;
-                border-collapse: collapse;
-                min-width: 800px;
-            }
-
-            .inventory-table th,
-            .inventory-table td {
-                padding: 12px;
-                text-align: right;
-                border-bottom: 1px solid #eee;
-            }
-
-            body.dark-mode .inventory-table th,
-            body.dark-mode .inventory-table td {
-                border-bottom-color: #444;
-            }
-
-            .inventory-table th {
-                background: #f8f9fa;
-                font-weight: 600;
-                color: #333;
-            }
-
-            body.dark-mode .inventory-table th {
-                background: #2d2d42;
-                color: #e6e6e6;
-            }
-
-            .inventory-table tbody tr:hover {
-                background: #f8f9fa;
-            }
-
-            body.dark-mode .inventory-table tbody tr:hover {
-                background: #2d2d42;
-            }
-
-            .inventory-alerts {
-                background: #fff3cd;
-                border-radius: 8px;
-                padding: 15px;
-            }
-
-            body.dark-mode .inventory-alerts {
-                background: #1a237e;
-            }
-
-            .inventory-alerts h4 {
-                color: #856404;
-                margin-bottom: 10px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-
-            body.dark-mode .inventory-alerts h4 {
-                color: #ffd740;
-            }
-
-            .alerts-list {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .alert-item {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 10px;
-                background: white;
-                border-radius: 5px;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            }
-
-            body.dark-mode .alert-item {
-                background: #3d3d5c;
-            }
-
-            .alert-text {
-                color: #856404;
-                font-size: 0.9rem;
-            }
-
-            body.dark-mode .alert-text {
-                color: #ffd740;
-            }
-            
-            /* Modal Styles */
-            .modal {
-                display: none;
-                position: fixed;
-                z-index: 1000;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(0,0,0,0.5);
-                overflow: auto;
-            }
-
-            .modal-content {
-                background-color: #fefefe;
-                margin: 5% auto;
-                padding: 20px;
-                border-radius: 10px;
-                width: 80%;
-                max-width: 600px;
-                position: relative;
-            }
-
-            body.dark-mode .modal-content {
-                background-color: #2d2d42;
-                color: #e6e6e6;
-            }
-
-            .close {
-                position: absolute;
-                right: 20px;
-                top: 10px;
-                font-size: 28px;
-                font-weight: bold;
-                cursor: pointer;
-            }
-
-            .close:hover {
-                color: #dc3545;
-            }
-
-            .modal h2 {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #eee;
-            }
-
-            body.dark-mode .modal h2 {
-                border-bottom-color: #444;
-            }
-
-            .modal .form-group {
-                margin-bottom: 15px;
-            }
-
-            .modal label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 600;
-            }
-
-            .modal input,
-            .modal select,
-            .modal textarea {
-                width: 100%;
-                padding: 8px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                background: white;
-            }
-
-            body.dark-mode .modal input,
-            body.dark-mode .modal select,
-            body.dark-mode .modal textarea {
-                background: #3d3d5c;
-                border-color: #444;
-                color: #e6e6e6;
-            }
-
-            .modal textarea {
-                min-height: 100px;
-                resize: vertical;
-            }
-
-            .modal .submit-btn {
-                margin-top: 20px;
-                width: 100%;
-            }
-
-            .action-buttons {
-                display: flex;
-                gap: 5px;
-            }
-
-            .action-btn {
-                padding: 5px 10px;
-                border: none;
-                border-radius: 3px;
-                cursor: pointer;
-                font-size: 0.8rem;
-                display: flex;
-                align-items: center;
-                gap: 3px;
-                transition: all 0.2s ease;
-            }
-
-            .edit-btn {
-                background: #007bff;
-                color: white;
-            }
-
-            .delete-btn {
-                background: #dc3545;
-                color: white;
-            }
-
-            .action-btn:hover {
-                opacity: 0.9;
-                transform: translateY(-1px);
-            }
-
-            /* Employee Requests Styles */
-            .requests-container {
-                background: white;
-                border-radius: 10px;
-                padding: 20px;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-            }
-
-            body.dark-mode .requests-container {
-                background: #3d3d5c;
-            }
-
-            .requests-tabs {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            .tab-btn {
-                padding: 10px 20px;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                background: #f8f9fa;
-                color: #666;
-                transition: all 0.3s ease;
-            }
-
-            body.dark-mode .tab-btn {
-                background: #2d2d42;
-                color: #aaa;
-            }
-
-            .tab-btn.active {
-                background: #28a745;
-                color: white;
-            }
-
-            body.dark-mode .tab-btn.active {
-                background: #4caf50;
-            }
-
-            .tab-content {
-                display: block;
-            }
-
-            .tab-content.hidden {
-                display: none;
-            }
-
-            .request-form {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .requests-filters {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            .requests-filters select {
-                padding: 8px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-                min-width: 150px;
-            }
-
-            body.dark-mode .requests-filters select {
-                background: #2d2d42;
-                border-color: #444;
-                color: #e6e6e6;
-            }
-
-            .requests-list {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .request-item {
-                background: #f8f9fa;
-                border-radius: 8px;
-                padding: 15px;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-            }
-
-            body.dark-mode .request-item {
-                background: #2d2d42;
-            }
-
-            .request-info {
-                flex: 1;
-            }
-
-            .request-title {
-                font-weight: 600;
-                margin-bottom: 5px;
-                color: #333;
-            }
-
-            body.dark-mode .request-title {
-                color: #e6e6e6;
-            }
-
-            .request-details {
-                color: #666;
-                font-size: 0.9rem;
-                margin-bottom: 10px;
-            }
-
-            body.dark-mode .request-details {
-                color: #aaa;
-            }
-
-            .request-meta {
-                display: flex;
-                gap: 15px;
-                font-size: 0.8rem;
-                color: #999;
-            }
-
-            body.dark-mode .request-meta {
-                color: #777;
-            }
-
-            .request-status {
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 0.85rem;
-                font-weight: 600;
-                margin-right: 15px;
-            }
-
-            .status-pending {
-                background: #fff3cd;
-                color: #856404;
-            }
-
-            .status-approved {
-                background: #d4edda;
-                color: #155724;
-            }
-
-            .status-rejected {
-                background: #f8d7da;
-                color: #721c24;
-            }
-
-            .status-in-progress {
-                background: #cce5ff;
-                color: #004085;
-            }
-
-            body.dark-mode .status-pending {
-                background: #ff8f00;
-                color: #212121;
-            }
-
-            body.dark-mode .status-approved {
-                background: #2e7d32;
-                color: #e8f5e9;
-            }
-
-            body.dark-mode .status-rejected {
-                background: #c62828;
-                color: #ffebee;
-            }
-
-            body.dark-mode .status-in-progress {
-                background: #1976d2;
-                color: #e3f2fd;
-            }
-
-            .request-actions {
-                display: flex;
-                gap: 5px;
-            }
-        </style>
-    </head>
-    <body dir="rtl">
-        <button class="theme-toggle" id="themeToggle">
-            <i class="fas fa-moon"></i>
-        </button>
-        <div class="connection-status" id="connectionStatus">
-            <i class="fas fa-plug"></i> الاتصال بـ Supabase: جاري الاتصال...
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">تم بنجاح</span>
+    </div>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" title="تبديل الوضع الليلي">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-user-tie"></i> بوابة الموظف</h1>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-name" id="userName">جاري التحميل...</div>
+                    <div class="user-role" id="userRole">موظف</div>
+                </div>
+                <div class="avatar" id="userAvatar">م</div>
+            </div>
         </div>
-        <div class="notification" id="notification">
-            <i class="fas fa-bell"></i>
-            <span id="notificationText">تم تسجيل الحضور بنجاح</span>
-        </div>
-        <div class="employee-container">
-            <div class="header">
-                <h1><i class="fas fa-user-tie"></i> بوابة الموظف</h1>
-                <div class="user-info">
-                    <div class="avatar" id="userAvatar">م</div>
-                    <div class="user-details">
-                        <div class="user-name" id="userName">جاري التحميل...</div>
-                        <div class="user-role" id="userRole">جاري التحميل...</div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Attendance Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-clock"></i>
+                    <h2>الحضور والانصراف</h2>
+                </div>
+                
+                <div class="attendance-buttons">
+                    <button class="btn btn-success" id="checkInBtn" disabled>
+                        <i class="fas fa-sign-in-alt"></i>
+                        تسجيل الحضور
+                    </button>
+                    <button class="btn btn-danger" id="checkOutBtn" disabled>
+                        <i class="fas fa-sign-out-alt"></i>
+                        تسجيل الانصراف
+                    </button>
+                </div>
+
+                <div class="time-display">
+                    <div class="time-box">
+                        <div class="time-label">وقت الحضور</div>
+                        <div class="time-value" id="checkInTime">-</div>
+                    </div>
+                    <div class="time-box">
+                        <div class="time-label">وقت الانصراف</div>
+                        <div class="time-value" id="checkOutTime">-</div>
+                    </div>
+                </div>
+
+                <div id="attendanceStatus"></div>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-id-card"></i>
+                    <h2>الملف الشخصي</h2>
+                </div>
+                <div id="profileDetails">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>جاري تحميل البيانات...</p>
                     </div>
                 </div>
             </div>
-            <div class="main-content">
-                <section id="profileSection">
-                    <h2><i class="fas fa-id-card"></i> الملف الشخصي</h2>
-                    <div class="profile-card" id="profileDetails">
-                        <div class="loading">
-                            <i class="fas fa-spinner"></i>
-                            <p>جاري تحميل البيانات...</p>
-                        </div>
+
+            <!-- Leave Request Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h2>طلب إجازة</h2>
+                </div>
+                <form id="leaveForm">
+                    <div class="form-group">
+                        <label for="leaveStart">
+                            <i class="fas fa-calendar-day"></i> تاريخ البدء
+                        </label>
+                        <input type="date" id="leaveStart" required>
                     </div>
-                </section>
-                <section id="attendanceSection">
-                    <h2><i class="fas fa-clock"></i> الحضور والانصراف</h2>
-                    <div class="attendance-buttons">
-                        <button id="checkInBtn" class="attendance-btn check-in-btn" disabled>
-                            <i class="fas fa-sign-in-alt"></i> تسجيل الحضور
-                        </button>
-                        <button id="checkOutBtn" class="attendance-btn check-out-btn" disabled>
-                            <i class="fas fa-sign-out-alt"></i> تسجيل الانصراف
-                        </button>
+                    <div class="form-group">
+                        <label for="leaveEnd">
+                            <i class="fas fa-calendar-day"></i> تاريخ الانتهاء
+                        </label>
+                        <input type="date" id="leaveEnd" required>
                     </div>
-                    <div class="today-attendance">
-                        <div class="time-display">
-                            <div class="time-value-large" id="checkInTime">-</div>
-                            <div class="time-label-large">وقت الحضور</div>
-                        </div>
-                        <div class="time-display">
-                            <div class="time-value-large" id="checkOutTime">-</div>
-                            <div class="time-label-large">وقت الانصراف</div>
-                        </div>
+                    <div class="form-group">
+                        <label for="leaveType">
+                            <i class="fas fa-file-alt"></i> نوع الإجازة
+                        </label>
+                        <select id="leaveType" required>
+                            <option value="annual">سنوية</option>
+                            <option value="sick">مرضية</option>
+                            <option value="emergency">طارئة</option>
+                            <option value="unpaid">بدون راتب</option>
+                        </select>
                     </div>
-                    <div id="attendanceStatus"></div>
-                    <div class="attendance-calendar">
-                        <div class="calendar-header">
-                            <button id="prevMonth"><i class="fas fa-chevron-left"></i></button>
-                            <h3 id="currentMonth">يناير 2024</h3>
-                            <button id="nextMonth"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                        <div class="calendar-grid">
-                            <div class="calendar-day">أحد</div>
-                            <div class="calendar-day">اثنين</div>
-                            <div class="calendar-day">ثلاثاء</div>
-                            <div class="calendar-day">أربعاء</div>
-                            <div class="calendar-day">خميس</div>
-                            <div class="calendar-day">جمعة</div>
-                            <div class="calendar-day">سبت</div>
-                        </div>
-                        <div id="calendarDates" class="calendar-grid"></div>
+                    <div class="form-group">
+                        <label for="leaveReason">
+                            <i class="fas fa-comment"></i> السبب (اختياري)
+                        </label>
+                        <textarea id="leaveReason" rows="3" placeholder="اكتب سبب الإجازة هنا..."></textarea>
                     </div>
-                    <div class="attendance-details">
-                        <h4><i class="fas fa-info-circle"></i> تفاصيل الحضور لهذا الشهر</h4>
-                        <div class="stats-container">
-                            <div class="stat-item">
-                                <div class="stat-value" id="presentDays">0</div>
-                                <div class="stat-label">أيام حضور</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="absentDays">0</div>
-                                <div class="stat-label">أيام غياب</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="lateDays">0</div>
-                                <div class="stat-label">أيام تأخير</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="missingCheckoutDays">0</div>
-                                <div class="stat-label">أيام لم يسجل انصراف</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="attendance-list">
-                        <h3><i class="fas fa-history"></i> سجل الحضور</h3>
-                        <div id="attendanceList">
-                            <div class="loading">
-                                <i class="fas fa-spinner"></i>
-                                <p>جاري تحميل سجل الحضور...</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section id="leaveSection">
-                    <h2><i class="fas fa-calendar-alt"></i> طلب إجازة</h2>
-                    <form id="leaveForm" class="leave-form">
-                        <div class="form-group">
-                            <label for="leaveStart"><i class="fas fa-calendar-day"></i> تاريخ البدء:</label>
-                            <input type="date" id="leaveStart" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="leaveEnd"><i class="fas fa-calendar-day"></i> تاريخ الانتهاء:</label>
-                            <input type="date" id="leaveEnd" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="leaveType"><i class="fas fa-file-alt"></i> نوع الإجازة:</label>
-                            <select id="leaveType" required>
-                                <option value="annual">سنوية</option>
-                                <option value="sick">مرضية</option>
-                                <option value="emergency">طارئة</option>
-                                <option value="unpaid">بدون راتب</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="leaveReason"><i class="fas fa-comment"></i> السبب:</label>
-                            <textarea id="leaveReason" placeholder="اكتب سبب الإجازة هنا..."></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn" id="submitLeaveBtn" disabled>
-                            <i class="fas fa-paper-plane"></i> إرسال الطلب
-                        </button>
-                    </form>
-                    <div class="leave-requests">
-                        <h3><i class="fas fa-list"></i> طلبات الإجازة</h3>
-                        <div id="leaveRequests">
-                            <div class="loading">
-                                <i class="fas fa-spinner"></i>
-                                <p>جاري تحميل طلبات الإجازة...</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-                <section id="salarySection">
-                    <h2><i class="fas fa-money-bill-wave"></i> الراتب الشهري</h2>
-                    <div class="salary-card">
-                        <div class="salary-item">
-                            <div class="salary-label">نوع الشيفت:</div>
-                            <div class="salary-value" id="shiftType">8 ساعات</div>
-                        </div>
-                        <div class="salary-item">
-                            <div class="salary-label">معدل الساعة:</div>
-                            <div class="salary-value" id="hourlyRate">0 ج.م</div>
-                        </div>
-                    </div>
-                    <div class="salary-card" id="salaryInfo" style="margin-top: 15px;">
-                        <div class="loading">
-                            <i class="fas fa-spinner"></i>
-                            <p>جاري تحميل معلومات الراتب...</p>
-                        </div>
-                    </div>
-                    <div class="salary-card" id="expectedSalary" style="margin-top: 15px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
-                        <h3 style="margin-bottom: 15px; color: #2e7d32;"><i class="fas fa-calculator"></i> توقع الراتب للشهر الحالي</h3>
-                        <div class="salary-item">
-                            <div class="salary-label">أيام الحضور:</div>
-                            <div class="salary-value" id="workDaysCount">0</div>
-                        </div>
-                        <div class="salary-item">
-                            <div class="salary-label">التأخير المتراكم:</div>
-                            <div class="salary-value" id="lateMinutesCount" style="color: #dc3545;">0 دقيقة</div>
-                        </div>
-                        <div class="salary-item">
-                            <div class="salary-label">خصم متوقع للتأخير:</div>
-                            <div class="salary-value" id="expectedLateDeduction" style="color: #dc3545;">0 ج.م</div>
-                        </div>
-                        <div class="salary-item">
-                            <div class="salary-label">الإضافي المتراكم:</div>
-                            <div class="salary-value" id="overtimeMinutesCount" style="color: #28a745;">0 دقيقة</div>
-                        </div>
-                        <div class="salary-item">
-                            <div class="salary-label">مكافأة متوقعة للإضافي:</div>
-                            <div class="salary-value" id="expectedOvertimeBonus" style="color: #28a745;">0 ج.م</div>
-                        </div>
-                        <div class="salary-item total-salary">
-                            <div class="salary-label">الراتب المتوقع:</div>
-                            <div class="salary-value" id="expectedTotalSalary">0 ج.م</div>
-                        </div>
-                    </div>
-                </section>
-                <section id="notificationsSection">
-                    <h2><i class="fas fa-bell"></i> الإشعارات</h2>
-                    <div class="notifications-container">
-                        <div class="notifications-header">
-                            <h3><i class="fas fa-envelope"></i> الإشعارات الحديثة</h3>
-                            <button id="markAllReadBtn" class="mark-all-read-btn">
-                                <i class="fas fa-check-double"></i> تعليم الكل كمقروء
-                            </button>
-                        </div>
-                        <div id="notificationsList" class="notifications-list">
-                            <div class="loading">
-                                <i class="fas fa-spinner"></i>
-                                <p>جاري تحميل الإشعارات...</p>
-                            </div>
-                        </div>
-                        <div class="notifications-footer">
-                            <button id="loadMoreNotificationsBtn" class="load-more-btn">
-                                <i class="fas fa-sync"></i> تحميل المزيد
-                            </button>
-                        </div>
-                    </div>
-                </section>
-                <section id="inventorySection">
-                    <h2><i class="fas fa-boxes"></i> إدارة المخزون</h2>
-                    <div class="inventory-container">
-                        <div class="inventory-header">
-                            <h3><i class="fas fa-box"></i> المخزون المتاح</h3>
-                            <button id="addItemBtn" class="add-item-btn">
-                                <i class="fas fa-plus"></i> إضافة صنف جديد
-                            </button>
-                        </div>
-                        <div class="inventory-search">
-                            <input type="text" id="searchInventory" placeholder="البحث في المخزون...">
-                            <select id="categoryFilter">
-                                <option value="">كل الفئات</option>
-                                <option value="food">مواد غذائية</option>
-                                <option value="drinks">مشروبات</option>
-                                <option value="supplies">مستلزمات</option>
-                            </select>
-                        </div>
-                        <div class="inventory-table-container">
-                            <table class="inventory-table">
-                                <thead>
-                                    <tr>
-                                        <th>الصنف</th>
-                                        <th>الفئة</th>
-                                        <th>الكمية المتوفرة</th>
-                                        <th>الحد الأدنى</th>
-                                        <th>آخر تحديث</th>
-                                        <th>الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inventoryList">
-                                    <tr>
-                                        <td colspan="6">
-                                            <div class="loading">
-                                                <i class="fas fa-spinner"></i>
-                                                <p>جاري تحميل بيانات المخزون...</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="inventory-alerts">
-                            <h4><i class="fas fa-exclamation-triangle"></i> تنبيهات المخزون</h4>
-                            <div id="inventoryAlerts" class="alerts-list"></div>
-                        </div>
-                    </div>
-                </section>
-                <section id="employeeRequestsSection">
-                    <h2><i class="fas fa-file-alt"></i> طلبات الموظفين</h2>
-                    <div class="requests-container">
-                        <div class="requests-tabs">
-                            <button class="tab-btn active" data-tab="newRequest">
-                                <i class="fas fa-plus"></i> طلب جديد
-                            </button>
-                            <button class="tab-btn" data-tab="myRequests">
-                                <i class="fas fa-list"></i> طلباتي
-                            </button>
-                        </div>
-                        
-                        <div class="tab-content" id="newRequestTab">
-                            <form id="employeeRequestForm" class="request-form">
-                                <div class="form-group">
-                                    <label for="requestType">نوع الطلب:</label>
-                                    <select id="requestType" required>
-                                        <option value="">اختر نوع الطلب</option>
-                                        <option value="document">طلب وثيقة</option>
-                                        <option value="permission">طلب إذن</option>
-                                        <option value="equipment">طلب معدات</option>
-                                        <option value="other">طلب آخر</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="requestTitle">عنوان الطلب:</label>
-                                    <input type="text" id="requestTitle" required placeholder="أدخل عنوان الطلب">
-                                </div>
-                                <div class="form-group">
-                                    <label for="requestDetails">تفاصيل الطلب:</label>
-                                    <textarea id="requestDetails" required placeholder="اكتب تفاصيل طلبك هنا..."></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="requestPriority">الأولوية:</label>
-                                    <select id="requestPriority" required>
-                                        <option value="low">منخفضة</option>
-                                        <option value="medium">متوسطة</option>
-                                        <option value="high">عالية</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="submit-btn">
-                                    <i class="fas fa-paper-plane"></i> إرسال الطلب
-                                </button>
-                            </form>
-                        </div>
-                        
-                        <div class="tab-content hidden" id="myRequestsTab">
-                            <div class="requests-filters">
-                                <select id="statusFilter">
-                                    <option value="">كل الحالات</option>
-                                    <option value="pending">قيد الانتظار</option>
-                                    <option value="approved">تمت الموافقة</option>
-                                    <option value="rejected">مرفوض</option>
-                                    <option value="in-progress">قيد التنفيذ</option>
-                                </select>
-                                <select id="dateFilter">
-                                    <option value="">كل التواريخ</option>
-                                    <option value="today">اليوم</option>
-                                    <option value="week">هذا الأسبوع</option>
-                                    <option value="month">هذا الشهر</option>
-                                </select>
-                            </div>
-                            <div class="requests-list" id="requestsList">
-                                <div class="loading">
-                                    <i class="fas fa-spinner"></i>
-                                    <p>جاري تحميل الطلبات...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;" id="submitLeaveBtn" disabled>
+                        <i class="fas fa-paper-plane"></i> إرسال الطلب
+                    </button>
+                </form>
             </div>
-            <button class="logout-btn" onclick="handleSignOut()">
+
+            <!-- Salary Info Card -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <h2>معلومات الراتب</h2>
+                </div>
+                <div id="salaryInfo">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>جاري تحميل معلومات الراتب...</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: #f0f9ff; border-radius: 10px;">
+                    <h3 style="margin-bottom: 15px; color: #667eea;">
+                        <i class="fas fa-calculator"></i> توقع الراتب للشهر الحالي
+                    </h3>
+                    <div class="profile-item">
+                        <div class="profile-label">أيام الحضور:</div>
+                        <div class="profile-value" id="workDaysCount">0</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">التأخير المتراكم:</div>
+                        <div class="profile-value" id="lateMinutesCount">0 دقيقة</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">خصم متوقع:</div>
+                        <div class="profile-value" style="color: #dc3545;" id="expectedLateDeduction">0 ج.م</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">الإضافي المتراكم:</div>
+                        <div class="profile-value" id="overtimeMinutesCount">0 دقيقة</div>
+                    </div>
+                    <div class="profile-item">
+                        <div class="profile-label">مكافأة متوقعة:</div>
+                        <div class="profile-value" style="color: #28a745;" id="expectedOvertimeBonus">0 ج.م</div>
+                    </div>
+                    <div class="profile-item" style="border-top: 2px solid #667eea; padding-top: 15px; margin-top: 10px;">
+                        <div class="profile-label" style="font-size: 1.1rem; color: #667eea;">الراتب المتوقع:</div>
+                        <div class="profile-value" style="font-size: 1.3rem; font-weight: bold; color: #667eea;" id="expectedTotalSalary">0 ج.م</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance List Card -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <i class="fas fa-history"></i>
+                    <h2>سجل الحضور</h2>
+                </div>
+                <div id="attendanceList">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>جاري تحميل سجل الحضور...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Requests Card -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <i class="fas fa-list"></i>
+                    <h2>طلبات الإجازة</h2>
+                </div>
+                <div id="leaveRequests">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>جاري تحميل طلبات الإجازة...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout Button -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn btn-danger" onclick="handleSignOut()">
                 <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
             </button>
         </div>
-        <script type="module">
-            import * as employeeFunctions from './employee-functions.js';
-            window.employeeFunctions = employeeFunctions;
+    </div>
 
-            // Event Listeners للإشعارات
-            document.getElementById('markAllReadBtn').addEventListener('click', employeeFunctions.markAllNotificationsAsRead);
+    <script type="module">
+        import * as employeeFunctions from './employee-functions.js';
+        
+        // Make functions available globally
+        window.employeeFunctions = employeeFunctions;
 
-            // Event Listeners للمخزون
-            document.getElementById('addItemBtn').addEventListener('click', () => {
-                const modal = document.getElementById('addItemModal');
-                if (modal) {
-                    modal.style.display = 'block';
-                } else {
-                    showInventoryModal();
-                }
-            });
-
-            // Event Listeners لطلبات الموظفين
-            document.getElementById('employeeRequestForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const requestData = {
-                    title: document.getElementById('requestTitle').value,
-                    type: document.getElementById('requestType').value,
-                    details: document.getElementById('requestDetails').value,
-                    priority: document.getElementById('requestPriority').value
-                };
-                await employeeFunctions.submitEmployeeRequest(requestData);
-            });
-
-            // التبديل بين علامات التبويب
-            const tabButtons = document.querySelectorAll('.tab-btn');
-            const tabContents = document.querySelectorAll('.tab-content');
-
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const tabId = button.getAttribute('data-tab');
-                    
-                    // إزالة الفئة النشطة من جميع الأزرار
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    // إضافة الفئة النشطة للزر المحدد
-                    button.classList.add('active');
-
-                    // إخفاء جميع المحتويات
-                    tabContents.forEach(content => content.classList.add('hidden'));
-                    // إظهار المحتوى المحدد
-                    document.getElementById(`${tabId}Tab`).classList.remove('hidden');
-                });
-            });
-
-            // دالة إظهار نافذة إضافة صنف جديد
-            function showInventoryModal() {
-                const modalHtml = `
-                    <div id="addItemModal" class="modal">
-                        <div class="modal-content">
-                            <span class="close">&times;</span>
-                            <h2>إضافة صنف جديد</h2>
-                            <form id="addItemForm">
-                                <div class="form-group">
-                                    <label for="itemName">اسم الصنف:</label>
-                                    <input type="text" id="itemName" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemCategory">الفئة:</label>
-                                    <select id="itemCategory" required>
-                                        <option value="food">مواد غذائية</option>
-                                        <option value="drinks">مشروبات</option>
-                                        <option value="supplies">مستلزمات</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemQuantity">الكمية:</label>
-                                    <input type="number" id="itemQuantity" required min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemMinQuantity">الحد الأدنى:</label>
-                                    <input type="number" id="itemMinQuantity" required min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemPrice">السعر:</label>
-                                    <input type="number" id="itemPrice" step="0.01" min="0">
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemSupplier">المورد:</label>
-                                    <input type="text" id="itemSupplier">
-                                </div>
-                                <div class="form-group">
-                                    <label for="itemNotes">ملاحظات:</label>
-                                    <textarea id="itemNotes"></textarea>
-                                </div>
-                                <button type="submit" class="submit-btn">إضافة الصنف</button>
-                            </form>
-                        </div>
-                    </div>
-                `;
-                document.body.insertAdjacentHTML('beforeend', modalHtml);
-                
-                const modal = document.getElementById('addItemModal');
-                const closeBtn = modal.querySelector('.close');
-                const form = document.getElementById('addItemForm');
-
-                closeBtn.onclick = () => modal.style.display = "none";
-                window.onclick = (event) => {
-                    if (event.target == modal) modal.style.display = "none";
-                };
-
-                form.onsubmit = async (e) => {
-                    e.preventDefault();
-                    const itemData = {
-                        name: document.getElementById('itemName').value,
-                        category: document.getElementById('itemCategory').value,
-                        quantity: parseInt(document.getElementById('itemQuantity').value),
-                        min_quantity: parseInt(document.getElementById('itemMinQuantity').value),
-                        unit_price: parseFloat(document.getElementById('itemPrice').value) || 0,
-                        supplier: document.getElementById('itemSupplier').value,
-                        notes: document.getElementById('itemNotes').value
-                    };
-                    await employeeFunctions.addInventoryItem(itemData);
-                };
-            }
-
-            window.showInventoryModal = showInventoryModal;
-
-            // التحقق من الجلسة
-            async function checkSession() {
-                try {
-                    const { data: { session }, error } = await window.supabase.auth.getSession();
-                    if (error || !session) {
-                        document.getElementById('connectionStatus').innerHTML = '<i class="fas fa-exclamation-triangle"></i> خطأ في الجلسة';
-                        document.getElementById('connectionStatus').classList.add('error');
-                        window.location.href = 'index.html';
-                        return null;
-                    }
-                    window.currentUser = session.user;
-                    return session;
-                } catch (error) {
-                    console.error("Error checking session:", error);
+        // Check session
+        async function checkSession() {
+            try {
+                const { data: { session }, error } = await window.supabase.auth.getSession();
+                if (error || !session) {
                     window.location.href = 'index.html';
                     return null;
                 }
+                window.currentUser = session.user;
+                return session;
+            } catch (error) {
+                console.error("Error checking session:", error);
+                window.location.href = 'index.html';
+                return null;
             }
+        }
 
-            // تهيئة التطبيق
-            window.addEventListener('load', async () => {
-                const session = await checkSession();
-                if (!session) return;
+        // Sign out handler
+        window.handleSignOut = async function() {
+            try {
+                await window.supabase.auth.signOut();
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Error signing out:", error);
+                employeeFunctions.showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
+            }
+        };
 
-                // تهيئة تواريخ نموذج الإجازة
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('leaveStart').min = today;
-                document.getElementById('leaveEnd').min = today;
-                const nextWeek = new Date();
-                nextWeek.setDate(nextWeek.getDate() + 7);
-                document.getElementById('leaveStart').value = nextWeek.toISOString().split('T')[0];
-                const weekAfter = new Date();
-                weekAfter.setDate(weekAfter.getDate() + 9);
-                document.getElementById('leaveEnd').value = weekAfter.toISOString().split('T')[0];
+        // Theme toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
 
-                // تحميل جميع البيانات
-                await window.employeeFunctions.loadUserProfile();
-                await window.employeeFunctions.loadSalaryInfo();
-                await window.employeeFunctions.loadAttendanceList();
-                await window.employeeFunctions.loadLeaveRequests();
-                await window.employeeFunctions.checkTodayAttendance();
-                await window.employeeFunctions.loadAttendanceCalendar();
-                await window.employeeFunctions.calculateExpectedSalary(); // تحميل توقع الراتب عند بدء التطبيق
-                
-                // تحميل البيانات للأقسام الجديدة
-                await window.employeeFunctions.loadNotifications();
-                await window.employeeFunctions.loadInventory();
-                await window.employeeFunctions.loadEmployeeRequests();
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
 
-                // تفعيل زر الإجازة
+        // Initialize app
+        window.addEventListener('load', async () => {
+            const session = await checkSession();
+            if (!session) return;
+
+            // Set date inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('leaveStart').min = today;
+            document.getElementById('leaveEnd').min = today;
+
+            // Load all data
+            try {
+                await Promise.all([
+                    employeeFunctions.loadUserProfile(),
+                    employeeFunctions.loadSalaryInfo(),
+                    employeeFunctions.loadAttendanceList(),
+                    employeeFunctions.loadLeaveRequests(),
+                    employeeFunctions.checkTodayAttendance(),
+                    employeeFunctions.calculateExpectedSalary()
+                ]);
+
+                // Enable leave button after loading
                 document.getElementById('submitLeaveBtn').disabled = false;
-            });
-
-            // معالجة أحداث الأزرار
-            document.getElementById('checkInBtn').addEventListener('click', window.employeeFunctions.recordCheckIn);
-            document.getElementById('checkOutBtn').addEventListener('click', window.employeeFunctions.recordCheckOut);
-            document.getElementById('leaveForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const leaveData = {
-                    start_date: document.getElementById('leaveStart').value,
-                    end_date: document.getElementById('leaveEnd').value,
-                    type: document.getElementById('leaveType').value,
-                    reason: document.getElementById('leaveReason').value || undefined
-                };
-                await window.employeeFunctions.submitLeaveRequest(leaveData);
-            });
-
-            // Navigation for calendar
-            document.getElementById('prevMonth').addEventListener('click', () => {
-                window.employeeFunctions.currentMonth.setMonth(window.employeeFunctions.currentMonth.getMonth() - 1);
-                window.employeeFunctions.loadAttendanceCalendar();
-            });
-            document.getElementById('nextMonth').addEventListener('click', () => {
-                window.employeeFunctions.currentMonth.setMonth(window.employeeFunctions.currentMonth.getMonth() + 1);
-                window.employeeFunctions.loadAttendanceCalendar();
-            });
-
-            // دالة تسجيل الخروج
-            window.handleSignOut = async function() {
-                try {
-                    await window.supabase.auth.signOut();
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    console.error("Error signing out:", error);
-                    window.employeeFunctions.showNotification('حدث خطأ أثناء تسجيل الخروج', 'error');
-                }
-            };
-
-            // تحديث الوقت في الرأس
-            function updateDateTime() {
-                const now = new Date();
-                const options = { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                };
-                // تنسيق التاريخ إلى ميلادي
-                const dateStr = now.toLocaleDateString('en-US', options);
-                document.querySelector('.header h1').innerHTML = 
-                    `<i class="fas fa-user-tie"></i> بوابة الموظف - ${dateStr}`;
+                
+                employeeFunctions.showNotification('تم تحميل البيانات بنجاح', 'success');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                employeeFunctions.showNotification('حدث خطأ في تحميل البيانات', 'error');
             }
-            updateDateTime();
-            setInterval(updateDateTime, 60000);
-        </script>
+        });
 
-        <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+        // Event listeners
+        document.getElementById('checkInBtn').addEventListener('click', employeeFunctions.recordCheckIn);
+        document.getElementById('checkOutBtn').addEventListener('click', employeeFunctions.recordCheckOut);
+        
+        document.getElementById('leaveForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const leaveData = {
+                start_date: document.getElementById('leaveStart').value,
+                end_date: document.getElementById('leaveEnd').value,
+                type: document.getElementById('leaveType').value,
+                reason: document.getElementById('leaveReason').value || undefined
+            };
+            await employeeFunctions.submitLeaveRequest(leaveData);
+        });
 
-            <script type="module" src="./master.js">         </script>
+        // Update date validation
+        document.getElementById('leaveStart').addEventListener('change', (e) => {
+            document.getElementById('leaveEnd').min = e.target.value;
+        });
 
-    </body>
-    </html>
+        // Auto refresh attendance every 5 minutes
+        setInterval(async () => {
+            await employeeFunctions.checkTodayAttendance();
+            await employeeFunctions.calculateExpectedSalary();
+        }, 300000);
+    </script>
+    
+</body>
+</html>
